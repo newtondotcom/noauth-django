@@ -64,6 +64,10 @@ def callback(request):
             query = DiscordUsers.objects.create(userID=user_data['id'], access_token=access_token, refresh_token=refresh_token, username=f'{user_data["username"]}#{user_data["discriminator"]}', mail=user_data['email'], server_guild=server)
             query.save()
 
+            query = ServerJoins.objects.get(userID=user_data['id'])
+            query.has_joined = True
+            query.save()
+
             addip = DiscordServer.objects.get(guild_id=guild_in).addip
 
             form_data = {
@@ -74,6 +78,7 @@ def callback(request):
             }
 
             req = requests.post(addip, data=form_data, headers={'Content-Type': 'application/json'})
+
 
             if req.status_code == 200:
                 print('[+] User added to the local database')

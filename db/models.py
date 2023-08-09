@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+## Discord Servers registered
 class DiscordServer(models.Model):
     guild_id = models.CharField(max_length=60)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -8,6 +9,7 @@ class DiscordServer(models.Model):
     client_secret = models.CharField(max_length=80)
     client_id = models.CharField(max_length=80)
 
+## Discord Users registered
 class DiscordUsers(models.Model):
     userID = models.CharField(max_length=40, null=True, unique=True)
     access_token = models.CharField(max_length=300)
@@ -16,11 +18,24 @@ class DiscordUsers(models.Model):
     email = models.CharField(max_length=150, null=True)  
     server_guild = models.ForeignKey(DiscordServer, on_delete=models.CASCADE, null=True)
     
+## Discord Users joined
+class ServerJoins(models.Model):
+    userID = models.CharField(max_length=80)
+    date = models.DateTimeField(auto_now_add=True)
+    server = models.ForeignKey(DiscordServer, on_delete=models.CASCADE)
+    has_joined = models.BooleanField(default=False)
+
+## Payments
 class Payment(models.Model):
     buyer = models.ForeignKey(User, on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now_add=True)
     duration = models.IntegerField() # in days
 
+## List of members in the main server
+class MyServerMembers(models.Model):
+    userID = models.CharField(max_length=20)
+
+## Discord Users registered to my auth
 class MyAuthUser(models.Model):
     userID = models.CharField(max_length=20)
     access_token = models.CharField(max_length=300)
@@ -28,10 +43,3 @@ class MyAuthUser(models.Model):
     username = models.CharField(max_length=50)
     email = models.CharField(max_length=150, null=True) 
 
-class MyServerMembers(models.Model):
-    userID = models.CharField(max_length=20)
-
-class ServerJoins(models.Model):
-    userID = models.CharField(max_length=80)
-    date = models.DateTimeField(auto_now_add=True)
-    server = models.ForeignKey(DiscordServer, on_delete=models.CASCADE)
