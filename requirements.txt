@@ -2,3 +2,4 @@ boto3
 requests
 discord
 python-dotenv
+django-cors-headers

@@ -9,5 +9,6 @@ urlpatterns = [
     path("checkToken/", checkToken), #check if a user's token is valid
     path("callback/", callback), #callback for oauth
     path("renewToken/", renew_token), #renew a user's token
+    path("/", index), #index page
 ]
 
