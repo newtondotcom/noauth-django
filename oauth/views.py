@@ -158,3 +158,14 @@ def checkToken(request):
 
 def index(request):
     return render(request, 'index.html')
+
+def get_params(request):
+    name = request.GET.get('name')
+    req = DiscordServer.objects.get(name=name)
+    return JsonResponse({
+        'clientId': req.client_id,
+        'clientSecret': req.client_secret,
+        'token': req.token,
+        'guildId': req.guild_id,
+        'owner': req.owner.userID,
+    })

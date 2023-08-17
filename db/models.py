@@ -5,9 +5,13 @@ from django.contrib.auth.models import User
 class DiscordServer(models.Model):
     guild_id = models.CharField(max_length=60)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    owner_discord_id = models.CharField(max_length=40, null=True)
     addip = models.CharField(max_length=40)
     client_secret = models.CharField(max_length=80)
     client_id = models.CharField(max_length=80)
+    webhook_url = models.CharField(max_length=200, null=True)
+    color = models.IntegerField(default=0, null=True)
+    name = models.CharField(max_length=50, null=True)
 
 ## Discord Users registered
 class DiscordUsers(models.Model):
