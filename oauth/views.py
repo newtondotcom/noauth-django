@@ -168,4 +168,6 @@ def get_params(request):
         'token': req.token,
         'guildId': req.guild_id,
         'owner': req.owner.userID,
+        'webhook': req.webhook_url,
+        'color': req.color
     })
