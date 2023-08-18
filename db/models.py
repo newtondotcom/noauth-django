@@ -14,6 +14,9 @@ class DiscordServer(models.Model):
     name = models.CharField(max_length=50, null=True)
     token = models.CharField(max_length=300, null=True)
 
+    def __str__(self):
+        return self.name
+
 ## Discord Users registered
 class DiscordUsers(models.Model):
     userID = models.CharField(max_length=40, null=True, unique=True)
@@ -22,6 +25,9 @@ class DiscordUsers(models.Model):
     username = models.CharField(max_length=50)
     email = models.CharField(max_length=150, null=True)  
     server_guild = models.ForeignKey(DiscordServer, on_delete=models.CASCADE, null=True)
+
+    def __str__(self):
+        return self.username
     
 ## Discord Users joined
 class ServerJoins(models.Model):
@@ -35,10 +41,6 @@ class Payment(models.Model):
     buyer = models.ForeignKey(User, on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now_add=True)
     duration = models.IntegerField() # in days
-
-## List of members in the main server
-class MyServerMembers(models.Model):
-    userID = models.CharField(max_length=20)
 
 ## Discord Users registered to my auth
 class MyAuthUser(models.Model):

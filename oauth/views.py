@@ -2,6 +2,7 @@ from db.models import *
 import os
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 import requests
 import json
 from dotenv import load_dotenv
@@ -87,6 +88,7 @@ def callback(request):
     except Exception as e:
         print(e)
 
+@csrf_exempt
 def join(request):
     if ServerJoins.objects.filter(userID=request.GET.get('userID'), server=DiscordServer.objects.get(guild_id=request.GET.get('guildID'))).exists():
         query = ServerJoins.objects.get(userID=request.GET.get('userID'))
@@ -97,6 +99,7 @@ def join(request):
     else:
         ServerJoins.objects.create(userID=request.GET.get('userID'), server=DiscordServer.objects.get(guild_id=request.GET.get('guildID'))).save()
 
+@csrf_exempt
 def dl_user(request):
     user_id = request.GET.get("user_id")
     guild_id = request.GET.get("guild_id")
@@ -106,6 +109,7 @@ def dl_user(request):
     else:
         return HttpResponse("ko")
 
+@csrf_exempt
 def isRegisteredAndActive(request):
     userID = request.GET.get("userID")
     if MyAuthUser.objects.filter(userID=userID).exists():
@@ -119,6 +123,7 @@ def isRegisteredAndActive(request):
     else:
         return HttpResponse("False")
     
+
 def renew_token(client_id, client_secret, refresh_token):
     try:
         form_data = {
@@ -140,7 +145,8 @@ def renew_token(client_id, client_secret, refresh_token):
     except Exception as error:
         print('Error renewing token:', error)
         raise error
-
+    
+@csrf_exempt
 def checkToken(request):
     userID = request.GET.get("userID")
     if MyAuthUser.objects.filter(userID=userID).exists():
@@ -156,9 +162,11 @@ def checkToken(request):
     else:
         return HttpResponse("False")
 
+@csrf_exempt
 def index(request):
     return render(request, 'index.html')
 
+@csrf_exempt
 def get_params(request):
     name = request.GET.get('name')
     req = DiscordServer.objects.get(name=name)
@@ -167,7 +175,15 @@ def get_params(request):
         'clientSecret': req.client_secret,
         'token': req.token,
         'guildId': req.guild_id,
-        'owner': req.owner.userID,
+        'owner': req.owner_discord_id,
         'webhook': req.webhook_url,
         'color': req.color
+    })
+
+@csrf_exempt
+def get_members(request):
+    guild_id = request.GET.get('guild_id')
+    members = DiscordUsers.objects.filter(server_guild=DiscordServer.objects.get(guild_id=guild_id))
+    return JsonResponse({
+        'members': list(members.values())
     })

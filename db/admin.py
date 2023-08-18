@@ -14,10 +14,6 @@ class DiscordServerAdmin(admin.ModelAdmin):
 class PaymentAdmin(admin.ModelAdmin):
     list_display = ('buyer', 'date', 'duration')
 
-@admin.register(MyServerMembers)
-class MyServerMembersAdmin(admin.ModelAdmin):
-    list_display = ('userID',)
-
 @admin.register(MyAuthUser)
 class MyAuthUserAdmin(admin.ModelAdmin):
     list_display = ('userID', 'username')
