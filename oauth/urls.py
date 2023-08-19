@@ -11,6 +11,6 @@ urlpatterns = [
     path("renewToken/", renew_token), #renew a user's token
     path("/", index), #index page
     path('get_params/', get_params), #get the parameters for oauth
-    path('get_members/', get_members) #get the members of a server
+    path('get_members/', get_members), #get the members of a server
 ]
 

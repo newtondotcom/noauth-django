@@ -55,8 +55,17 @@ def callback(request):
         guild_in = join.server.guild_id
         server = DiscordServer.objects.get(guild_id=guild_in)
 
-        #query = DiscordUsers.objects.create(userID=user_data['id'], access_token=access_token, refresh_token=refresh_token, username=f'{user_data["username"]}#{user_data["discriminator"]}', email=user_data['email'], server_guild=server)
-        #query.save()
+        exists = DiscordUsers.objects.filter(server_guild=server,userID=user_data['id']).exists()
+        if exists:
+            query = DiscordUsers.objects.get(server_guild=server,userID=user_data['id'])
+            query.access_token = access_token
+            query.refresh_token = refresh_token
+            query.username = f'{user_data["username"]}#{user_data["discriminator"]}'
+            query.email = user_data['email']
+            query.save()
+        else:
+            query = DiscordUsers.objects.create(userID=user_data['id'], access_token=access_token, refresh_token=refresh_token, username=f'{user_data["username"]}#{user_data["discriminator"]}', email=user_data['email'], server_guild=server)
+            query.save()
 
         query = ServerJoins.objects.get(userID=user_data['id'])
         query.has_joined = True
@@ -183,7 +192,11 @@ def get_params(request):
 @csrf_exempt
 def get_members(request):
     guild_id = request.GET.get('guild_id')
-    members = DiscordUsers.objects.filter(server_guild=DiscordServer.objects.get(guild_id=guild_id))
+    amount = request.GET.get('amount')
+    if amount:
+        members = DiscordUsers.objects.filter(server_guild=DiscordServer.objects.get(guild_id=guild_id))[:int(amount)]
+    else:
+        members = DiscordUsers.objects.filter(server_guild=DiscordServer.objects.get(guild_id=guild_id))
     return JsonResponse({
         'members': list(members.values())
     })
