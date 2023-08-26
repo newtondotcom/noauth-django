@@ -200,3 +200,10 @@ def get_members(request):
     return JsonResponse({
         'members': list(members.values())
     })
+
+@csrf_exempt
+def update_webhook(request):
+    guild_id = request.GET.get('guild_id')
+    webhook = request.GET.get('webhook')
+    DiscordServer.objects.filter(guild_id=guild_id).update(webhook_url=webhook)
+    return HttpResponse('OK')
