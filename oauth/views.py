@@ -54,7 +54,7 @@ def callback(request):
 
         join = ServerJoins.objects.get(userID=user_data['id'])
         guild_in = join.server.guild_id
-        server = DiscordServer.objects.get(guild_id=guild_in)
+        server = DiscordServerJoined.objects.get(guild_id=guild_in)
 
         exists = DiscordUsers.objects.filter(server_guild=server,userID=user_data['id']).exists()
         if exists:
@@ -72,7 +72,7 @@ def callback(request):
         query.has_joined = True
         query.save()
 
-        addip = DiscordServer.objects.get(guild_id=guild_in).addip
+        addip = DiscordServerJoined.objects.get(guild_id=guild_in).addip
 
         form_data = {
             'userID' : user_data['id'],
@@ -100,18 +100,18 @@ def callback(request):
 
 @csrf_exempt
 def join(request):
-    if ServerJoins.objects.filter(userID=request.GET.get('userID'), server=DiscordServer.objects.get(guild_id=request.GET.get('guildID'))).exists():
+    if ServerJoins.objects.filter(userID=request.GET.get('userID'), server=DiscordServerJoined.objects.get(guild_id=request.GET.get('guildID'))).exists():
         query = ServerJoins.objects.get(userID=request.GET.get('userID'))
         if query.has_joined:
             query.has_joined = False
             query.save()
         return HttpResponse('OK')
     else:
-        ServerJoins.objects.create(userID=request.GET.get('userID'), server=DiscordServer.objects.get(guild_id=request.GET.get('guildID'))).save()
+        ServerJoins.objects.create(userID=request.GET.get('userID'), server=DiscordServerJoined.objects.get(guild_id=request.GET.get('guildID'))).save()
 
 @csrf_exempt
 def left(request):
-    if ServerJoins.objects.filter(userID=request.GET.get('userID'), server=DiscordServer.objects.get(guild_id=request.GET.get('guildID'))).exists():
+    if ServerJoins.objects.filter(userID=request.GET.get('userID'), server=DiscordServerJoined.objects.get(guild_id=request.GET.get('guildID'))).exists():
         query = ServerJoins.objects.get(userID=request.GET.get('userID'))
         if query.has_joined:
             query.has_joined = False
@@ -122,8 +122,8 @@ def left(request):
 def dl_user(request):
     user_id = request.GET.get("user_id")
     guild_id = request.GET.get("guild_id")
-    if DiscordUsers.objects.filter(userID=user_id,guild=DiscordServer.objects.get(guild_id=guild_id)).exists():
-        DiscordUsers.objects.filter(userID=user_id,guild=DiscordServer.objects.get(guild_id=guild_id)).delete()
+    if DiscordUsers.objects.filter(userID=user_id,guild=DiscordServerJoined.objects.get(guild_id=guild_id)).exists():
+        DiscordUsers.objects.filter(userID=user_id,guild=DiscordServerJoined.objects.get(guild_id=guild_id)).delete()
         return HttpResponse("ok")
     else:
         return HttpResponse("ko")
@@ -176,8 +176,8 @@ def checkToken(request):
             return HttpResponse("True")
         else:
             guild_in = DiscordUsers.objects.get(userID=userID).server_guild.guild_id
-            server = DiscordServer.objects.get(guild_id=guild_in)
-            access_token = renew_token(server.client_id, DiscordServer.objects.get(userID=userID).client_secret, server.refresh_token)
+            server = DiscordServerJoined.objects.get(guild_id=guild_in)
+            access_token = renew_token(server.client_id, DiscordServerJoined.objects.get(userID=userID).client_secret, server.refresh_token)
     else:
         return HttpResponse("False")
 
@@ -188,7 +188,7 @@ def index(request):
 @csrf_exempt
 def get_params(request):
     name = request.GET.get('name')
-    req = DiscordServer.objects.get(name=name)
+    req = DiscordServerJoined.objects.get(name=name)
     return JsonResponse({
         'clientId': req.client_id,
         'clientSecret': req.client_secret,
@@ -200,13 +200,21 @@ def get_params(request):
     })
 
 @csrf_exempt
+def get_ip_master(request):
+    guild_id = request.GET.get('guild_id')
+    req = Bots.objects.get(guild_id=guild_id)
+    return JsonResponse({
+        'ip': req.addip
+    })
+
+@csrf_exempt
 def get_members(request):
     guild_id = request.GET.get('guild_id')
     amount = request.GET.get('amount')
     if amount:
-        members = DiscordUsers.objects.filter(server_guild=DiscordServer.objects.get(guild_id=guild_id))[:int(amount)]
+        members = DiscordUsers.objects.filter(server_guild=DiscordServerJoined.objects.get(guild_id=guild_id))[:int(amount)]
     else:
-        members = DiscordUsers.objects.filter(server_guild=DiscordServer.objects.get(guild_id=guild_id))
+        members = DiscordUsers.objects.filter(server_guild=DiscordServerJoined.objects.get(guild_id=guild_id))
     return JsonResponse({
         'members': list(members.values())
     })
@@ -215,12 +223,12 @@ def get_members(request):
 def update_webhook(request):
     guild_id = request.GET.get('guild_id')
     webhook = request.GET.get('webhook')
-    DiscordServer.objects.filter(guild_id=guild_id).update(webhook_url=webhook)
+    DiscordServerJoined.objects.filter(guild_id=guild_id).update(webhook_url=webhook)
     return HttpResponse('OK')
 
 def get_button(request):
     guild_id = request.GET.get('guild_id')
-    buttons = Button.objects.filter(server=DiscordServer.objects.get(guild_id=guild_id))
+    buttons = Button.objects.filter(server=DiscordServerJoined.objects.get(guild_id=guild_id))
     buttons.values()[0]
     return JsonResponse({
         'button': list(buttons.values())
@@ -230,7 +238,7 @@ def set_button_graphic(request):
     guild_id = request.GET.get('guild_id')
     image = quote_plus(request.GET.get('image'))
     color = request.GET.get('color')
-    Button.objects.filter(server=DiscordServer.objects.get(guild_id=guild_id)).update(image=image, color=color)
+    Button.objects.filter(server=DiscordServerJoined.objects.get(guild_id=guild_id)).update(image=image, color=color)
     return HttpResponse('OK')
 
 def set_button_text(request):
@@ -239,5 +247,17 @@ def set_button_text(request):
     title = request.GET.get('title')
     description = request.GET.get('description')
     footer = request.GET.get('footer')
-    Button.objects.filter(server=DiscordServer.objects.get(guild_id=guild_id)).update(name=name, title=title, description=description, footer=footer)
+    Button.objects.filter(server=DiscordServerJoined.objects.get(guild_id=guild_id)).update(name=name, title=title, description=description, footer=footer)
+    return HttpResponse('OK')
+
+def guild_joined(request):
+    guild_id = request.GET.get('guild_id')
+    guild_joined = request.GET.get('guild_joined')
+    DiscordServerJoined.objects.create(master=DiscordServerJoined.objects.get(guild_id=guild_id), guild_id=guild_joined)
+    return HttpResponse('OK')
+
+def guild_left(request):
+    guild_id = request.GET.get('guild_id')
+    guild_left = request.GET.get('guild_left')
+    DiscordServerJoined.objects.filter(master=DiscordServerJoined.objects.get(guild_id=guild_id), guild_id=guild_left).delete()
     return HttpResponse('OK')

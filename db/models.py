@@ -4,7 +4,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 ## Discord Servers registered
-class DiscordServer(models.Model):
+class Bots(models.Model):
     guild_id = models.CharField(max_length=60)
     owner = models.ForeignKey('DiscordUsers', on_delete=models.CASCADE)
     owner_discord_id = models.CharField(max_length=40, null=True)
@@ -19,17 +19,27 @@ class DiscordServer(models.Model):
     def __str__(self):
         return self.name
     
-@receiver(post_save, sender=DiscordServer)
-def create_button(sender, instance, created, **kwargs):
+class DiscordServerJoined(models.Model):
+    master = models.ForeignKey(Bots, on_delete=models.CASCADE)
+    guild_id = models.CharField(max_length=60)
+    
+@receiver(post_save, sender=Bots)
+def create_button_and_server_joined(sender, instance, created, **kwargs):
     if created:
-        query = Button.objects.create(server=instance)
-        query.image = "https://i.imgur.com/AfFp7pu.png"
-        query.color = 000000
-        query.name = "Name"
-        query.title = "Title"
-        query.description = "Description"
-        query.footer = "Footer"
-        query.save()
+        # Create a Button instance
+        Button.objects.create(
+            server=instance,
+            image="https://i.imgur.com/AfFp7pu.png",
+            color=0,  # Change to the desired default color value
+            name="Name",
+            title="Title",
+            description="Description",
+            footer="Footer"
+        )
+        
+        # Create a DiscordServerJoined instance
+        DiscordServerJoined.objects.create(master=instance, guild_id=instance.guild_id)
+
 
 
 ## Discord Users registered
@@ -39,7 +49,7 @@ class DiscordUsers(models.Model):
     refresh_token = models.CharField(max_length=300, null=True)
     username = models.CharField(max_length=50)
     email = models.CharField(max_length=150, null=True)  
-    server_guild = models.ForeignKey(DiscordServer, on_delete=models.CASCADE, null=True, blank=True)
+    server_guild = models.ForeignKey(DiscordServerJoined, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return self.username
@@ -48,7 +58,7 @@ class DiscordUsers(models.Model):
 class ServerJoins(models.Model):
     userID = models.CharField(max_length=80)
     date = models.DateTimeField(auto_now_add=True)
-    server = models.ForeignKey(DiscordServer, on_delete=models.CASCADE)
+    server = models.ForeignKey(DiscordServerJoined, on_delete=models.CASCADE)
     has_joined = models.BooleanField(default=False)
 
 ## Payments
@@ -73,4 +83,4 @@ class Button(models.Model):
     title = models.CharField(max_length=50, null=True, blank=True)
     description = models.CharField(max_length=200, null=True, blank=True)
     footer = models.CharField(max_length=50, null=True, blank=True)
-    server = models.ForeignKey(DiscordServer, on_delete=models.CASCADE, null=True, blank=True)
+    server = models.ForeignKey(DiscordServerJoined, on_delete=models.CASCADE, null=True, blank=True)
