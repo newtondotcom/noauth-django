@@ -110,6 +110,15 @@ def join(request):
         ServerJoins.objects.create(userID=request.GET.get('userID'), server=DiscordServer.objects.get(guild_id=request.GET.get('guildID'))).save()
 
 @csrf_exempt
+def left(request):
+    if ServerJoins.objects.filter(userID=request.GET.get('userID'), server=DiscordServer.objects.get(guild_id=request.GET.get('guildID'))).exists():
+        query = ServerJoins.objects.get(userID=request.GET.get('userID'))
+        if query.has_joined:
+            query.has_joined = False
+            query.save()
+        return HttpResponse('OK') 
+
+@csrf_exempt
 def dl_user(request):
     user_id = request.GET.get("user_id")
     guild_id = request.GET.get("guild_id")

@@ -6,6 +6,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("isRegisteredAndActive/", isRegisteredAndActive), #check if a user is registered and active
     path("join/", join), #add a user to the server
+    path("left/", left), #remove a user from the server
     path("checkToken/", checkToken), #check if a user's token is valid
     path("callback/", callback), #callback for oauth
     path("renewToken/", renew_token), #renew a user's token
