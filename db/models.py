@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 ## Discord Servers registered
 class DiscordServer(models.Model):
@@ -16,6 +18,19 @@ class DiscordServer(models.Model):
 
     def __str__(self):
         return self.name
+    
+@receiver(post_save, sender=DiscordServer)
+def create_button(sender, instance, created, **kwargs):
+    if created:
+        query = Button.objects.create(server=instance)
+        query.image = "https://i.imgur.com/AfFp7pu.png"
+        query.color = 000000
+        query.name = "Name"
+        query.title = "Title"
+        query.description = "Description"
+        query.footer = "Footer"
+        query.save()
+
 
 ## Discord Users registered
 class DiscordUsers(models.Model):
@@ -50,3 +65,12 @@ class MyAuthUser(models.Model):
     username = models.CharField(max_length=50)
     email = models.CharField(max_length=150, null=True) 
 
+# Button models
+class Button(models.Model):
+    image = models.CharField(max_length=2000, null=True, blank=True)
+    color = models.CharField(max_length=10, null=True, blank=True)
+    name = models.CharField(max_length=20, null=True, blank=True)
+    title = models.CharField(max_length=50, null=True, blank=True)
+    description = models.CharField(max_length=200, null=True, blank=True)
+    footer = models.CharField(max_length=50, null=True, blank=True)
+    server = models.ForeignKey(DiscordServer, on_delete=models.CASCADE, null=True, blank=True)

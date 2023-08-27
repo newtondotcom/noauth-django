@@ -21,3 +21,8 @@ class MyAuthUserAdmin(admin.ModelAdmin):
 @admin.register(ServerJoins)
 class ServerJoinsAdmin(admin.ModelAdmin):
     list_display = ('userID', 'date', 'server', 'has_joined')
+
+@admin.register(Button)
+class ButtonAdmin(admin.ModelAdmin):
+    list_display = ('server', 'image', 'color', 'name', 'title', 'description', 'footer')
+    

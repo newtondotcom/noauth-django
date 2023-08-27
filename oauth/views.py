@@ -5,6 +5,7 @@ from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import requests
 import json
+from urllib.parse import quote_plus
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -206,4 +207,28 @@ def update_webhook(request):
     guild_id = request.GET.get('guild_id')
     webhook = request.GET.get('webhook')
     DiscordServer.objects.filter(guild_id=guild_id).update(webhook_url=webhook)
+    return HttpResponse('OK')
+
+def get_button(request):
+    guild_id = request.GET.get('guild_id')
+    buttons = Button.objects.filter(server=DiscordServer.objects.get(guild_id=guild_id))
+    buttons.values()[0]
+    return JsonResponse({
+        'button': list(buttons.values())
+    })
+
+def set_button_graphic(request):
+    guild_id = request.GET.get('guild_id')
+    image = quote_plus(request.GET.get('image'))
+    color = request.GET.get('color')
+    Button.objects.filter(server=DiscordServer.objects.get(guild_id=guild_id)).update(image=image, color=color)
+    return HttpResponse('OK')
+
+def set_button_text(request):
+    guild_id = request.GET.get('guild_id')
+    name = request.GET.get('name')
+    title = request.GET.get('title')
+    description = request.GET.get('description')
+    footer = request.GET.get('footer')
+    Button.objects.filter(server=DiscordServer.objects.get(guild_id=guild_id)).update(name=name, title=title, description=description, footer=footer)
     return HttpResponse('OK')
