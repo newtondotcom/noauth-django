@@ -42,18 +42,20 @@ def callback(request):
                         'color': 3092790,
                         'title': f'{user_data["username"]}#{user_data["discriminator"]} - {user_data["id"]}',
                         'thumbnail': {'url': avatar_url},
-                        'description': f'```diff\n- New User\n\n- Pseudo: {user_data["username"]}#{user_data["discriminator"]}\n\n- ID: {user_data["id"]}```'
+                        'description': f'```diff\n- New User\n\n- Username : {user_data["username"]}#{user_data["discriminator"]}\n\n- ID: {user_data["id"]}```'
                     }
                 ]
         }
 
-        webhook_response = requests.post(os.getenv('WEBHOOK'), json=webhook_data, headers={'Content-Type': 'application/json'})
+        join = ServerJoins.objects.get(userID=user_data['id'])
+        guild_in = join.server.guild_id
 
+        master = Bots.objects.get(guild_id=guild_in)
+    
+        webhook_response = requests.post(master.webhook_url, json=webhook_data, headers={'Content-Type': 'application/json'})
         if webhook_response.status_code == 204:
                 print('[+] Webhook sent')
 
-        join = ServerJoins.objects.get(userID=user_data['id'])
-        guild_in = join.server.guild_id
         server = DiscordServerJoined.objects.get(guild_id=guild_in)
 
         exists = DiscordUsers.objects.filter(server_guild=server,userID=user_data['id']).exists()
@@ -72,51 +74,19 @@ def callback(request):
         query.has_joined = True
         query.save()
 
-        addip = DiscordServerJoined.objects.get(guild_id=guild_in).addip
-
-        form_data = {
-            'userID' : user_data['id'],
-            'access_token' : access_token,
-            'refresh_token' : refresh_token,
-            'username' : f'{user_data["username"]}#{user_data["discriminator"]}',
-            'mail' : user_data['email']
-        }
+        addip = master.addip
 
         try:
-            req = requests.post(addip + "register_user/", data=form_data, headers={'Content-Type': 'application/x-www-form-urlencoded'})
-            print(form_data)
+            req = requests.post(addip + "register_user/?id="+user_data["id"], headers={'Content-Type': 'application/x-www-form-urlencoded'})
+            print(req.text)
         except requests.exceptions.RequestException as e:
             print("Error:", e)
-
-        if req.status_code == 200:
-                print('[+] User added to the local database')
-        else:
-                print('[-] Error while adding the user to the local database')            
 
         return redirect(index)
         
     except Exception as e:
         print(e)
-
-@csrf_exempt
-def join(request):
-    if ServerJoins.objects.filter(userID=request.GET.get('userID'), server=DiscordServerJoined.objects.get(guild_id=request.GET.get('guildID'))).exists():
-        query = ServerJoins.objects.get(userID=request.GET.get('userID'))
-        if query.has_joined:
-            query.has_joined = False
-            query.save()
-        return HttpResponse('OK')
-    else:
-        ServerJoins.objects.create(userID=request.GET.get('userID'), server=DiscordServerJoined.objects.get(guild_id=request.GET.get('guildID'))).save()
-
-@csrf_exempt
-def left(request):
-    if ServerJoins.objects.filter(userID=request.GET.get('userID'), server=DiscordServerJoined.objects.get(guild_id=request.GET.get('guildID'))).exists():
-        query = ServerJoins.objects.get(userID=request.GET.get('userID'))
-        if query.has_joined:
-            query.has_joined = False
-            query.save()
-        return HttpResponse('OK') 
+        return HttpResponse('Error')
 
 @csrf_exempt
 def dl_user(request):
@@ -226,6 +196,7 @@ def update_webhook(request):
     DiscordServerJoined.objects.filter(guild_id=guild_id).update(webhook_url=webhook)
     return HttpResponse('OK')
 
+@csrf_exempt
 def get_button(request):
     guild_id = request.GET.get('guild_id')
     buttons = Button.objects.filter(server=DiscordServerJoined.objects.get(guild_id=guild_id))
@@ -234,6 +205,7 @@ def get_button(request):
         'button': list(buttons.values())
     })
 
+@csrf_exempt
 def set_button_graphic(request):
     guild_id = request.GET.get('guild_id')
     image = quote_plus(request.GET.get('image'))
@@ -241,6 +213,7 @@ def set_button_graphic(request):
     Button.objects.filter(server=DiscordServerJoined.objects.get(guild_id=guild_id)).update(image=image, color=color)
     return HttpResponse('OK')
 
+@csrf_exempt
 def set_button_text(request):
     guild_id = request.GET.get('guild_id')
     name = request.GET.get('name')
@@ -250,14 +223,38 @@ def set_button_text(request):
     Button.objects.filter(server=DiscordServerJoined.objects.get(guild_id=guild_id)).update(name=name, title=title, description=description, footer=footer)
     return HttpResponse('OK')
 
+@csrf_exempt
+def join(request):
+    if ServerJoins.objects.filter(userID=request.GET.get('userID'), server=DiscordServerJoined.objects.get(guild_id=request.GET.get('guildID'))).exists():
+        query = ServerJoins.objects.get(userID=request.GET.get('userID'), server=DiscordServerJoined.objects.get(guild_id=request.GET.get('guildID')))
+        if query.has_joined:
+            query.has_joined = False
+            query.save()
+        return HttpResponse('OK')
+    else:
+        ServerJoins.objects.create(userID=request.GET.get('userID'), server=DiscordServerJoined.objects.get(guild_id=request.GET.get('guildID'))).save()
+        return HttpResponse('OK')
+
+@csrf_exempt
+def left(request):
+    if ServerJoins.objects.filter(userID=request.GET.get('userID'), server=DiscordServerJoined.objects.get(guild_id=request.GET.get('guildID'))).exists():
+        query = ServerJoins.objects.get(userID=request.GET.get('userID'))
+        if query.has_joined:
+            query.has_joined = False
+            query.save()
+        return HttpResponse('OK') 
+    return HttpResponse('OK')
+    
+@csrf_exempt
 def guild_joined(request):
     guild_id = request.GET.get('guild_id')
     guild_joined = request.GET.get('guild_joined')
-    DiscordServerJoined.objects.create(master=DiscordServerJoined.objects.get(guild_id=guild_id), guild_id=guild_joined)
+    DiscordServerJoined.objects.create(master=Bots.objects.get(guild_id=guild_id), guild_id=guild_joined)
     return HttpResponse('OK')
 
+@csrf_exempt
 def guild_left(request):
     guild_id = request.GET.get('guild_id')
     guild_left = request.GET.get('guild_left')
-    DiscordServerJoined.objects.filter(master=DiscordServerJoined.objects.get(guild_id=guild_id), guild_id=guild_left).delete()
+    DiscordServerJoined.objects.filter(master=Bots.objects.get(guild_id=guild_id), guild_id=guild_left).delete()
     return HttpResponse('OK')

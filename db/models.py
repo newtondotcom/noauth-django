@@ -22,24 +22,25 @@ class Bots(models.Model):
 class DiscordServerJoined(models.Model):
     master = models.ForeignKey(Bots, on_delete=models.CASCADE)
     guild_id = models.CharField(max_length=60)
+    roleToGive = models.CharField(max_length=60, null=True)
     
 @receiver(post_save, sender=Bots)
 def create_button_and_server_joined(sender, instance, created, **kwargs):
     if created:
+        
+        # Create a DiscordServerJoined instance
+        serv = DiscordServerJoined.objects.create(master=instance, guild_id=instance.guild_id)
+
         # Create a Button instance
         Button.objects.create(
-            server=instance,
+            server=serv,
             image="https://i.imgur.com/AfFp7pu.png",
-            color=0,  # Change to the desired default color value
+            color=167772,  
             name="Name",
             title="Title",
             description="Description",
             footer="Footer"
         )
-        
-        # Create a DiscordServerJoined instance
-        DiscordServerJoined.objects.create(master=instance, guild_id=instance.guild_id)
-
 
 
 ## Discord Users registered
@@ -84,3 +85,6 @@ class Button(models.Model):
     description = models.CharField(max_length=200, null=True, blank=True)
     footer = models.CharField(max_length=50, null=True, blank=True)
     server = models.ForeignKey(DiscordServerJoined, on_delete=models.CASCADE, null=True, blank=True)
+
+    def __str__(self):
+        return self.name

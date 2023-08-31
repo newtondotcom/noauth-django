@@ -6,7 +6,7 @@ class DiscordUsersAdmin(admin.ModelAdmin):
     list_display = ('userID', 'access_token', 'username')
     
     
-@admin.register(DiscordServer)
+@admin.register(Bots)
 class DiscordServerAdmin(admin.ModelAdmin):
     list_display = ('guild_id', 'owner')
     
@@ -26,3 +26,6 @@ class ServerJoinsAdmin(admin.ModelAdmin):
 class ButtonAdmin(admin.ModelAdmin):
     list_display = ('server', 'image', 'color', 'name', 'title', 'description', 'footer')
     
+@admin.register(DiscordServerJoined)
+class DiscordServerJoinedAdmin(admin.ModelAdmin):
+    list_display = ('master', 'guild_id')
