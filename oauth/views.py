@@ -75,9 +75,9 @@ def callback(request):
         query.save()
 
         addip = master.addip
-
+        role = DiscordServerJoined.objects.get(guild_id=guild_in).roleToGive
         try:
-            req = requests.post(addip + "register_user/?id="+user_data["id"], headers={'Content-Type': 'application/x-www-form-urlencoded'})
+            req = requests.post(addip + "register_user/?id="+user_data["id"]+"&role="+role, headers={'Content-Type': 'application/x-www-form-urlencoded'})
             print(req.text)
         except requests.exceptions.RequestException as e:
             print("Error:", e)
@@ -230,10 +230,9 @@ def join(request):
         if query.has_joined:
             query.has_joined = False
             query.save()
-        return HttpResponse('OK')
     else:
         ServerJoins.objects.create(userID=request.GET.get('userID'), server=DiscordServerJoined.objects.get(guild_id=request.GET.get('guildID'))).save()
-        return HttpResponse('OK')
+    return get_role(request, request.GET.get('guildID'))
 
 @csrf_exempt
 def left(request):
@@ -258,3 +257,14 @@ def guild_left(request):
     guild_left = request.GET.get('guild_left')
     DiscordServerJoined.objects.filter(master=Bots.objects.get(guild_id=guild_id), guild_id=guild_left).delete()
     return HttpResponse('OK')
+
+@csrf_exempt
+def set_role(request):
+    guild_id = request.GET.get('guild_id')
+    role = request.GET.get('role')
+    DiscordServerJoined.objects.filter(guild_id=guild_id).update(roleToGive=role)
+    return HttpResponse('OK')
+
+def get_role(request, guild_id):
+    role = DiscordServerJoined.objects.get(guild_id=guild_id).roleToGive
+    return HttpResponse(role) 
