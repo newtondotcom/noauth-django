@@ -64,9 +64,10 @@ class ServerJoins(models.Model):
 
 ## Payments
 class Payment(models.Model):
-    buyer = models.ForeignKey(User, on_delete=models.CASCADE)
+    buyer = models.ForeignKey(Bots, on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now_add=True)
     duration = models.IntegerField() # in days
+    is_over = models.BooleanField(default=False)
 
 ## Discord Users registered to my auth
 class MyAuthUser(models.Model):

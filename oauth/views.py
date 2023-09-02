@@ -93,7 +93,7 @@ def dl_user(request):
     user_id = request.GET.get("user_id")
     guild_id = request.GET.get("guild_id")
     if DiscordUsers.objects.filter(userID=user_id,guild=DiscordServerJoined.objects.get(guild_id=guild_id)).exists():
-        DiscordUsers.objects.filter(userID=user_id,guild=DiscordServerJoined.objects.get(guild_id=guild_id)).delete()
+        #DiscordUsers.objects.filter(userID=user_id,guild=DiscordServerJoined.objects.get(guild_id=guild_id)).delete()
         return HttpResponse("ok")
     else:
         return HttpResponse("ko")
@@ -265,6 +265,22 @@ def set_role(request):
     DiscordServerJoined.objects.filter(guild_id=guild_id).update(roleToGive=role)
     return HttpResponse('OK')
 
-def get_role(request, guild_id):
-    role = DiscordServerJoined.objects.get(guild_id=guild_id).roleToGive
-    return HttpResponse(role) 
+@csrf_exempt
+def update_access_token(request):
+    guild_id = request.GET.get('guild_id')
+    user_id = request.GET.get('user_id')
+    access_token = request.GET.get('access_token')
+    DiscordUsers.objects.filter(server_guild=DiscordServerJoined.objects.get(guild_id=guild_id), userID=user_id).update(access_token=access_token)
+    return HttpResponse('OK')
+
+@csrf_exempt
+def get_subscription(request):
+    guild_id = request.GET.get('guild_id')
+    if Payment.objects.filter(buyer=Bots.objects.get(guild_id=guild_id)).exists():
+        subscription_date = Payment.objects.get(buyer=Bots.objects.get(guild_id=guild_id)).date
+        subscription_duration = Payment.objects.get(buyer=Bots.objects.get(guild_id=guild_id)).duration
+        return JsonResponse({
+            'subscription_date': subscription_date,
+            'subscription_duration': subscription_duration
+        })
+    return HttpResponse('OK')
