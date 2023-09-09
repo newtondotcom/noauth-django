@@ -22,5 +22,6 @@ urlpatterns = [
     path('guild_left/', guild_left), #get the guilds a user has left
     path('set_role/', set_role), #set the role to give a user when they join
     path('get_subscription/', get_subscription), #get the subscriptions for a user
+    path('dl_user/', dl_user), #download a user's data
 ]
 

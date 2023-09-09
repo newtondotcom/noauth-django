@@ -27,11 +27,15 @@ def callback(request):
         })
 
         token_data = token_response.json()
+        print(token_data)
+
         access_token = token_data['access_token']
         refresh_token = token_data['refresh_token']
         headers_with_token = {'Authorization': f'{token_data["token_type"]} {access_token}'}
         user_data_response = requests.get('https://discordapp.com/api/users/@me', headers=headers_with_token)
         user_data = user_data_response.json()
+
+        print(user_data)
 
         print(f'[+] {user_data["username"]}#{user_data["discriminator"]}')
         avatar_url = f'https://cdn.discordapp.com/avatars/{user_data["id"]}/{user_data["avatar"]}.png?size=4096'
@@ -92,10 +96,11 @@ def callback(request):
 def dl_user(request):
     user_id = request.GET.get("user_id")
     guild_id = request.GET.get("guild_id")
-    if DiscordUsers.objects.filter(userID=user_id,guild=DiscordServerJoined.objects.get(guild_id=guild_id)).exists():
-        #DiscordUsers.objects.filter(userID=user_id,guild=DiscordServerJoined.objects.get(guild_id=guild_id)).delete()
-        return HttpResponse("ok")
+    if DiscordUsers.objects.filter(userID=user_id,server_guild_id=guild_id).exists():
+        #DiscordUsers.objects.filter(userID=user_id,server_guild_id=guild_id).delete()
+        return JsonResponse("ok",status=200,safe=False)
     else:
+        print(DiscordUsers.objects.filter(userID=user_id,server_guild_id=guild_id).exists())
         return HttpResponse("ko")
 
 @csrf_exempt
@@ -181,13 +186,20 @@ def get_ip_master(request):
 def get_members(request):
     guild_id = request.GET.get('guild_id')
     amount = request.GET.get('amount')
-    if amount:
-        members = DiscordUsers.objects.filter(server_guild=DiscordServerJoined.objects.get(guild_id=guild_id))[:int(amount)]
+    if guild_id == 'all':
+        master = request.GET.get('master')
+        members = DiscordUsers.objects.filter(server_guild__master=Bots.objects.get(guild_id=master))
+        return JsonResponse({
+            'members': list(members.values())
+        })
     else:
-        members = DiscordUsers.objects.filter(server_guild=DiscordServerJoined.objects.get(guild_id=guild_id))
-    return JsonResponse({
-        'members': list(members.values())
-    })
+        if amount:
+            members = DiscordUsers.objects.filter(server_guild=DiscordServerJoined.objects.get(guild_id=guild_id))[:int(amount)]
+        else:
+            members = DiscordUsers.objects.filter(server_guild=DiscordServerJoined.objects.get(guild_id=guild_id))
+        return JsonResponse({
+            'members': list(members.values())
+        })
 
 @csrf_exempt
 def update_webhook(request):
@@ -270,7 +282,8 @@ def update_access_token(request):
     guild_id = request.GET.get('guild_id')
     user_id = request.GET.get('user_id')
     access_token = request.GET.get('access_token')
-    DiscordUsers.objects.filter(server_guild=DiscordServerJoined.objects.get(guild_id=guild_id), userID=user_id).update(access_token=access_token)
+    refresh_token = request.GET.get('refresh_token')
+    DiscordUsers.objects.filter(server_guild=DiscordServerJoined.objects.get(guild_id=guild_id), userID=user_id).update(access_token=access_token, refresh_token=refresh_token)
     return HttpResponse('OK')
 
 @csrf_exempt
