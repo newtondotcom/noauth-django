@@ -3,3 +3,4 @@ discord
 python-dotenv
 django-cors-headers
 mysqlclient
+uWSGI
