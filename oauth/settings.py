@@ -61,32 +61,9 @@ TEMPLATES = [
 WSGI_APPLICATION = "oauth.wsgi.application"
 
 
-
-# Password validation
-# https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
-
-AUTH_PASSWORD_VALIDATORS = [
-    {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
-    },
-]
-
-
-# Internationalization
-# https://docs.djangoproject.com/en/4.2/topics/i18n/
-
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = "Europe/Paris"
 
 USE_I18N = True
 
@@ -107,14 +84,14 @@ CSRF_COOKIE_SECURE = False
 CSRF_COOKIE_HTTPONLY = False
 
 CORS_ALLOW_CREDENTIALS = True
-CORS_ORIGIN_WHITELIST = (
-    'https://localhost:5000',
-    'https://localhost:5173',
-    'https://127.0.0.1:8000',
-    'https://localhost:4173',
-    "http://141.145.192.60:4000"
-)
-
+# CORS_ORIGIN_WHITELIST = (
+ #    'https://localhost:5000',
+  #   'https://localhost:5173',
+  #   'https://127.0.0.1:8000',
+ #    'https://localhost:4173',
+  #   "http://141.145.192.60:4000"
+# )
+CORS_ORIGIN_ALLOW = True
 CORS_ALLOW_HEADERS = [
 'Authorization',
 'Accept',
@@ -128,7 +105,7 @@ CORS_ALLOW_HEADERS = [
 ]
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 if DEBUG:
     DATABASES = {
