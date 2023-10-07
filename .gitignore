@@ -8,6 +8,8 @@
 /migrations/*.py[cod]
 *.pyc
 
+*/migrations
+
 # Icon must end with two \r
 Icon
 
