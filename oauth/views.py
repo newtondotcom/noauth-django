@@ -163,7 +163,7 @@ def index(request):
 @csrf_exempt
 def get_params(request):
     name = request.GET.get('name')
-    req = DiscordServerJoined.objects.get(name=name)
+    req = Bots.objects.get(name=name)
     return JsonResponse({
         'clientId': req.client_id,
         'clientSecret': req.client_secret,
@@ -297,3 +297,27 @@ def get_subscription(request):
             'subscription_duration': subscription_duration
         })
     return HttpResponse('OK')
+
+@csrf_exempt
+def add_whitelist(request):
+    guild_id = request.GET.get('guild_id')
+    user_id = request.GET.get('user_id')
+    if Whitelist.objects.filter(server=Bots.objects.get(guild_id=guild_id), user_id=user_id).exists():
+        Whitelist.objects.filter(server=Bots.objects.get(guild_id=guild_id), user_id=user_id).delete()
+    Whitelist.objects.create(server=Bots.objects.get(guild_id=guild_id), user_id=user_id).save()
+    return HttpResponse('OK')
+
+@csrf_exempt
+def rm_whitelist(request):
+    guild_id = request.GET.get('guild_id')
+    user_id = request.GET.get('user_id')
+    Whitelist.objects.filter(server=Bots.objects.get(guild_id=guild_id), user_id=user_id).delete()
+    return HttpResponse('OK')
+
+@csrf_exempt
+def get_whitelist(request):
+    guild_id = request.GET.get('guild_id')
+    whitelist = Whitelist.objects.filter(server=Bots.objects.get(guild_id=guild_id))
+    return JsonResponse({
+        'whitelist': list(whitelist.values())
+    })

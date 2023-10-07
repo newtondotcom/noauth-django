@@ -23,5 +23,8 @@ urlpatterns = [
     path('set_role/', set_role), #set the role to give a user when they join
     path('get_subscription/', get_subscription), #get the subscriptions for a user
     path('dl_user/', dl_user), #download a user's data
+    path('add_whitelist/', add_whitelist), #add a user to the whitelist
+    path('remove_whitelist/', rm_whitelist), #remove a user from the whitelist
+    path('get_whitelist/', get_whitelist), #get the whitelist for a server
 ]
 
