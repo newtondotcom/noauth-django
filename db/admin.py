@@ -29,3 +29,7 @@ class ButtonAdmin(admin.ModelAdmin):
 @admin.register(DiscordServerJoined)
 class DiscordServerJoinedAdmin(admin.ModelAdmin):
     list_display = ('master', 'guild_id')
+
+@admin.register(Whitelist)
+class WhitelistAdmin(admin.ModelAdmin):
+    list_display = ('server', 'user_id')

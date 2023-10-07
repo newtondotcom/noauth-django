@@ -64,7 +64,7 @@ class ServerJoins(models.Model):
 
 ## Payments
 class Payment(models.Model):
-    buyer = models.ForeignKey(Bots, on_delete=models.CASCADE)
+    buyer = models.ForeignKey(Bots, on_delete=models.CASCADE, null=True)
     date = models.DateTimeField(auto_now_add=True)
     duration = models.IntegerField() # in days
     is_over = models.BooleanField(default=False)
@@ -89,3 +89,8 @@ class Button(models.Model):
 
     def __str__(self):
         return self.name
+    
+class Whitelist(models.Model):
+    server = models.ForeignKey(Bots, on_delete=models.CASCADE)
+    user_id = models.CharField(max_length=40)
+    added_by = models.CharField(max_length=40)
