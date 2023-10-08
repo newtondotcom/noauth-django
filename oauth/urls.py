@@ -1,6 +1,8 @@
 from django.contrib import admin
 from django.urls import path
 from .views import *
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -26,5 +28,5 @@ urlpatterns = [
     path('add_whitelist/', add_whitelist), #add a user to the whitelist
     path('remove_whitelist/', rm_whitelist), #remove a user from the whitelist
     path('get_whitelist/', get_whitelist), #get the whitelist for a server
-]
+]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
