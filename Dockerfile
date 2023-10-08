@@ -23,6 +23,7 @@ COPY requirements.txt $DockerHOME/
 RUN pip install -r requirements.txt
 COPY . $DockerHOME/
 
+RUN mkdir static
 # run entrypoint script
 COPY entrypoint.sh $DockerHOME/
 RUN chmod +x $DockerHOME/entrypoint.sh
