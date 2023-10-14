@@ -10,7 +10,7 @@ class Bots(models.Model):
     client_secret = models.CharField(max_length=80)
     client_id = models.CharField(max_length=80)
     webhook_url = models.CharField(max_length=200, null=True)
-    color = models.IntegerField(default=0, null=True)
+    color = models.IntegerField(default=3447003, null=True)
     name = models.CharField(max_length=50, null=True)
     token = models.CharField(max_length=300, null=True)
 
