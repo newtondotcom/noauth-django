@@ -1,12 +1,10 @@
 from django.db import models
-from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 ## Discord Servers registered
 class Bots(models.Model):
     guild_id = models.CharField(max_length=60)
-    owner = models.ForeignKey('DiscordUsers', on_delete=models.CASCADE)
     owner_discord_id = models.CharField(max_length=40, null=True)
     addip = models.CharField(max_length=40)
     client_secret = models.CharField(max_length=80)
@@ -22,14 +20,17 @@ class Bots(models.Model):
 class DiscordServerJoined(models.Model):
     master = models.ForeignKey(Bots, on_delete=models.CASCADE)
     guild_id = models.CharField(max_length=60)
-    roleToGive = models.CharField(max_length=60, null=True)
+    roleToGiveVerif = models.CharField(max_length=60, null=True)
     
 @receiver(post_save, sender=Bots)
 def create_button_and_server_joined(sender, instance, created, **kwargs):
     if created:
         
         # Create a DiscordServerJoined instance
-        serv = DiscordServerJoined.objects.create(master=instance, guild_id=instance.guild_id)
+        serv = DiscordServerJoined.objects.create(
+            master=instance, 
+            guild_id=instance.guild_id
+        )
 
         # Create a Button instance
         Button.objects.create(
@@ -56,7 +57,7 @@ class DiscordUsers(models.Model):
         return self.username
     
 ## Discord Users joined
-class ServerJoins(models.Model):
+class UsersJoinServer(models.Model):
     userID = models.CharField(max_length=80)
     date = models.DateTimeField(auto_now_add=True)
     server = models.ForeignKey(DiscordServerJoined, on_delete=models.CASCADE)
@@ -68,14 +69,6 @@ class Payment(models.Model):
     date = models.DateTimeField(auto_now_add=True)
     duration = models.IntegerField() # in days
     is_over = models.BooleanField(default=False)
-
-## Discord Users registered to my auth
-class MyAuthUser(models.Model):
-    userID = models.CharField(max_length=20)
-    access_token = models.CharField(max_length=300)
-    refresh_token = models.CharField(max_length=300, null=True)
-    username = models.CharField(max_length=50)
-    email = models.CharField(max_length=150, null=True) 
 
 # Button models
 class Button(models.Model):

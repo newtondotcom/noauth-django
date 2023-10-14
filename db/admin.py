@@ -5,21 +5,17 @@ from .models import *
 class DiscordUsersAdmin(admin.ModelAdmin):
     list_display = ('userID', 'access_token', 'username')
     
-    
 @admin.register(Bots)
 class DiscordServerAdmin(admin.ModelAdmin):
-    list_display = ('guild_id', 'owner')
+    list_display = ('guild_id', 'owner_discord_id')
+    search_fields = ('guild_id', 'owner_discord_id')
     
 @admin.register(Payment)
 class PaymentAdmin(admin.ModelAdmin):
     list_display = ('buyer', 'date', 'duration')
 
-@admin.register(MyAuthUser)
-class MyAuthUserAdmin(admin.ModelAdmin):
-    list_display = ('userID', 'username')
-
-@admin.register(ServerJoins)
-class ServerJoinsAdmin(admin.ModelAdmin):
+@admin.register(UsersJoinServer)
+class UsersJoinServerAdmin(admin.ModelAdmin):
     list_display = ('userID', 'date', 'server', 'has_joined')
 
 @admin.register(Button)
