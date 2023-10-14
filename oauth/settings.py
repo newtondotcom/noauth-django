@@ -70,7 +70,6 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'staticfiles'),
 ]
 
-
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 CSRF_COOKIE_SECURE = False
@@ -86,21 +85,22 @@ CORS_ALLOW_CREDENTIALS = True
 # )
 CORS_ORIGIN_ALLOW = True
 CORS_ALLOW_HEADERS = [
-'Authorization',
-'Accept',
-'Accept-encoding',
-'Content-type',
-'dnt',
-'origin',
-'user-agent',
-'x-csrftoken',
-'x-requested-with',
+    'Authorization',
+    'Accept',
+    'Accept-encoding',
+    'Content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
 ]
 
 
 DEBUG = True
+SQLITE = False
 
-if DEBUG:
+if SQLITE:
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
