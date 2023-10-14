@@ -51,7 +51,7 @@ def callback(request):
                 ]
         }
 
-        join = ServerJoins.objects.get(userID=user_data['id'])
+        join = UsersJoinServer.objects.get(userID=user_data['id'])
         guild_in = join.server.guild_id
 
         master = Bots.objects.get(guild_id=guild_in)
@@ -74,12 +74,12 @@ def callback(request):
             query = DiscordUsers.objects.create(userID=user_data['id'], access_token=access_token, refresh_token=refresh_token, username=f'{user_data["username"]}#{user_data["discriminator"]}', email=user_data['email'], server_guild=server)
             query.save()
 
-        query = ServerJoins.objects.get(userID=user_data['id'])
+        query = UsersJoinServer.objects.get(userID=user_data['id'])
         query.has_joined = True
         query.save()
 
         addip = master.addip
-        role = DiscordServerJoined.objects.get(guild_id=guild_in).roleToGive
+        role = DiscordServerJoined.objects.get(guild_id=guild_in).roleToGiveVerif
         try:
             req = requests.post(addip + "register_user/?id="+user_data["id"]+"&role="+role, headers={'Content-Type': 'application/x-www-form-urlencoded'})
             print(req.text)
@@ -102,20 +102,6 @@ def dl_user(request):
     else:
         print(DiscordUsers.objects.filter(userID=user_id,server_guild_id=guild_id).exists())
         return HttpResponse("ko")
-
-@csrf_exempt
-def isRegisteredAndActive(request):
-    userID = request.GET.get("userID")
-    if MyAuthUser.objects.filter(userID=userID).exists():
-        access_token = MyAuthUser.objects.get(userID=userID).access_token
-        headers = {"Authorization": f"Bearer {access_token}"}
-        response = requests.get("https://discordapp.com/api/users/@me", headers=headers)
-        if response.status_code == 200:
-            return HttpResponse("True")
-        else:
-            return HttpResponse("False")
-    else:
-        return HttpResponse("False")
     
 
 def renew_token(client_id, client_secret, refresh_token):
@@ -139,22 +125,6 @@ def renew_token(client_id, client_secret, refresh_token):
     except Exception as error:
         print('Error renewing token:', error)
         raise error
-    
-@csrf_exempt
-def checkToken(request):
-    userID = request.GET.get("userID")
-    if MyAuthUser.objects.filter(userID=userID).exists():
-        access_token = MyAuthUser.objects.get(userID=userID).access_token
-        headers = {"Authorization": f"Bearer {access_token}"}
-        response = requests.get("https://discordapp.com/api/users/@me", headers=headers)
-        if response.status_code == 200:
-            return HttpResponse("True")
-        else:
-            guild_in = DiscordUsers.objects.get(userID=userID).server_guild.guild_id
-            server = DiscordServerJoined.objects.get(guild_id=guild_in)
-            access_token = renew_token(server.client_id, DiscordServerJoined.objects.get(userID=userID).client_secret, server.refresh_token)
-    else:
-        return HttpResponse("False")
 
 @csrf_exempt
 def index(request):
@@ -237,19 +207,19 @@ def set_button_text(request):
 
 @csrf_exempt
 def join(request):
-    if ServerJoins.objects.filter(userID=request.GET.get('userID'), server=DiscordServerJoined.objects.get(guild_id=request.GET.get('guildID'))).exists():
-        query = ServerJoins.objects.get(userID=request.GET.get('userID'), server=DiscordServerJoined.objects.get(guild_id=request.GET.get('guildID')))
+    if UsersJoinServer.objects.filter(userID=request.GET.get('userID'), server=DiscordServerJoined.objects.get(guild_id=request.GET.get('guildID'))).exists():
+        query = UsersJoinServer.objects.get(userID=request.GET.get('userID'), server=DiscordServerJoined.objects.get(guild_id=request.GET.get('guildID')))
         if query.has_joined:
             query.has_joined = False
             query.save()
     else:
-        ServerJoins.objects.create(userID=request.GET.get('userID'), server=DiscordServerJoined.objects.get(guild_id=request.GET.get('guildID'))).save()
-    return get_role(request, request.GET.get('guildID'))
+        UsersJoinServer.objects.create(userID=request.GET.get('userID'), server=DiscordServerJoined.objects.get(guild_id=request.GET.get('guildID'))).save()
+    return HttpResponse('OK')
 
 @csrf_exempt
 def left(request):
-    if ServerJoins.objects.filter(userID=request.GET.get('userID'), server=DiscordServerJoined.objects.get(guild_id=request.GET.get('guildID'))).exists():
-        query = ServerJoins.objects.get(userID=request.GET.get('userID'))
+    if UsersJoinServer.objects.filter(userID=request.GET.get('userID'), server=DiscordServerJoined.objects.get(guild_id=request.GET.get('guildID'))).exists():
+        query = UsersJoinServer.objects.get(userID=request.GET.get('userID'))
         if query.has_joined:
             query.has_joined = False
             query.save()
@@ -274,7 +244,7 @@ def guild_left(request):
 def set_role(request):
     guild_id = request.GET.get('guild_id')
     role = request.GET.get('role')
-    DiscordServerJoined.objects.filter(guild_id=guild_id).update(roleToGive=role)
+    DiscordServerJoined.objects.filter(guild_id=guild_id).update(roleToGiveVerif=role)
     return HttpResponse('OK')
 
 @csrf_exempt
