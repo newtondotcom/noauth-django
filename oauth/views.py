@@ -272,8 +272,9 @@ def get_subscription(request):
 def add_whitelist(request):
     guild_id = request.GET.get('guild_id')
     user_id = request.GET.get('user_id')
+    author = request.GET.get('author')
     if Whitelist.objects.filter(server=Bots.objects.get(guild_id=guild_id), user_id=user_id).exists():
-        Whitelist.objects.filter(server=Bots.objects.get(guild_id=guild_id), user_id=user_id).delete()
+        Whitelist.objects.filter(server=Bots.objects.get(guild_id=guild_id), user_id=user_id, added_by = author).delete()
     Whitelist.objects.create(server=Bots.objects.get(guild_id=guild_id), user_id=user_id).save()
     return HttpResponse('OK')
 
