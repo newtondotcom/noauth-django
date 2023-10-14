@@ -87,3 +87,4 @@ class Whitelist(models.Model):
     server = models.ForeignKey(Bots, on_delete=models.CASCADE)
     user_id = models.CharField(max_length=40)
     added_by = models.CharField(max_length=40)
+    date = models.DateTimeField(auto_now_add=True)
