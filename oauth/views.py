@@ -12,6 +12,8 @@ load_dotenv()
 def callback(request):
     code = request.GET.get('code')
 
+    valid = False
+
     try:
         
         for i in Bots.objects.all():
@@ -29,9 +31,12 @@ def callback(request):
             })
             if token_response.status_code != 200:
                 print('Token response status code:', token_response.status_code)
-                return HttpResponse('Error because of token response status code')
             else:
+                valid = True
                 break
+            
+        if not valid:
+            return HttpResponse('Error because of token response status code')
 
         token_data = token_response.json()
         print(token_data)
