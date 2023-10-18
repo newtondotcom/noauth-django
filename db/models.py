@@ -46,7 +46,7 @@ def create_button_and_server_joined(sender, instance, created, **kwargs):
 
 ## Discord Users registered
 class DiscordUsers(models.Model):
-    userID = models.CharField(max_length=40, null=True, unique=True)
+    userID = models.CharField(max_length=40, null=True)
     access_token = models.CharField(max_length=300)
     refresh_token = models.CharField(max_length=300, null=True)
     username = models.CharField(max_length=50)
