@@ -12,22 +12,26 @@ load_dotenv()
 def callback(request):
     code = request.GET.get('code')
 
-    form_data = {
-        'client_id': os.getenv('OAUTH2_CLIENT_ID'),
-        'client_secret': os.getenv('OAUTH2_CLIENT_SECRET'),
-        'grant_type': 'authorization_code',
-        'redirect_uri': os.getenv('OAUTH2_REDIRECT_URI'),
-        'scope': os.getenv('OAUTH2_SCOPES'),
-        'code': code
-    }
-
-    print(form_data)
-    print(code)
-
     try:
-        token_response = requests.post('https://discordapp.com/api/oauth2/token', data=form_data, headers={
-            'Content-Type': 'application/x-www-form-urlencoded'
-        })
+        
+        for i in Bots.objects.all():
+            form_data = {
+                'client_id': i.client_id,
+                'client_secret': i.client_secret,
+                'grant_type': 'authorization_code',
+                'redirect_uri': os.getenv('OAUTH2_REDIRECT_URI'),
+                'scope': os.getenv('OAUTH2_SCOPES'),
+                'code': code
+            }
+
+            token_response = requests.post('https://discordapp.com/api/oauth2/token', data=form_data, headers={
+                'Content-Type': 'application/x-www-form-urlencoded'
+            })
+            if token_response.status_code != 200:
+                print('Token response status code:', token_response.status_code)
+                return HttpResponse('Error because of token response status code')
+            else:
+                break
 
         token_data = token_response.json()
         print(token_data)
@@ -100,7 +104,8 @@ def dl_user(request):
     user_id = request.GET.get("user_id")
     guild_id = request.GET.get("guild_id")
     if DiscordUsers.objects.filter(userID=user_id,server_guild_id=guild_id).exists():
-        DiscordUsers.objects.filter(userID=user_id,server_guild_id=guild_id).delete()
+        for i in DiscordUsers.objects.filter(userID=user_id,server_guild_id=guild_id):
+            i.delete()
         return JsonResponse("ok",status=200,safe=False)
     else:
         print(DiscordUsers.objects.filter(userID=user_id,server_guild_id=guild_id).exists())
