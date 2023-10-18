@@ -17,9 +17,12 @@ def callback(request):
         'client_secret': os.getenv('OAUTH2_CLIENT_SECRET'),
         'grant_type': 'authorization_code',
         'redirect_uri': os.getenv('OAUTH2_REDIRECT_URI'),
-        'scope': os.getenv('OAUTH2_CLIENT_ID'),
+        'scope': os.getenv('OAUTH2_SCOPES'),
         'code': code
     }
+
+    print(form_data)
+    print(code)
 
     try:
         token_response = requests.post('https://discordapp.com/api/oauth2/token', data=form_data, headers={
@@ -81,7 +84,7 @@ def callback(request):
         addip = master.addip
         role = DiscordServerJoined.objects.get(guild_id=guild_in).roleToGiveVerif
         try:
-            req = requests.post(addip + "register_user/?id="+user_data["id"]+"&role="+role, headers={'Content-Type': 'application/x-www-form-urlencoded'})
+            req = requests.post(addip + "register_user/?id="+user_data["id"]+"&role="+role + "&server="+server.guild_id, headers={'Content-Type': 'application/x-www-form-urlencoded'})
             print(req.text)
         except requests.exceptions.RequestException as e:
             print("Error:", e)
@@ -97,7 +100,7 @@ def dl_user(request):
     user_id = request.GET.get("user_id")
     guild_id = request.GET.get("guild_id")
     if DiscordUsers.objects.filter(userID=user_id,server_guild_id=guild_id).exists():
-        #DiscordUsers.objects.filter(userID=user_id,server_guild_id=guild_id).delete()
+        DiscordUsers.objects.filter(userID=user_id,server_guild_id=guild_id).delete()
         return JsonResponse("ok",status=200,safe=False)
     else:
         print(DiscordUsers.objects.filter(userID=user_id,server_guild_id=guild_id).exists())
