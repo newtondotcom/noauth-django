@@ -219,6 +219,13 @@ def set_button_text(request):
     return HttpResponse('OK')
 
 @csrf_exempt
+def set_button_content(request):
+    guild_id = request.GET.get('guild_id')
+    content = request.GET.get('content')
+    Button.objects.filter(server=DiscordServerJoined.objects.get(guild_id=guild_id)).update(content=content)
+    return HttpResponse('OK')
+
+@csrf_exempt
 def join(request):
     if UsersJoinServer.objects.filter(userID=request.GET.get('userID'), server=DiscordServerJoined.objects.get(guild_id=request.GET.get('guildID'))).exists():
         query = UsersJoinServer.objects.get(userID=request.GET.get('userID'), server=DiscordServerJoined.objects.get(guild_id=request.GET.get('guildID')))
@@ -301,7 +308,12 @@ def rm_whitelist(request):
 @csrf_exempt
 def get_whitelist(request):
     guild_id = request.GET.get('guild_id')
-    whitelist = Whitelist.objects.filter(server=Bots.objects.get(guild_id=guild_id))
-    return JsonResponse({
-        'whitelist': list(whitelist.values())
-    })
+    try:
+        whitelist = Whitelist.objects.filter(server=Bots.objects.get(guild_id=guild_id))
+        return JsonResponse({
+            'whitelist': list(whitelist.values())
+        })
+    except:
+        return JsonResponse({
+            'whitelist': []
+        })

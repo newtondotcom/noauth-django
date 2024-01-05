@@ -40,7 +40,8 @@ def create_button_and_server_joined(sender, instance, created, **kwargs):
             name="Name",
             title="Title",
             description="Description",
-            footer="Footer"
+            footer="Footer",
+            content="Authentificate here !"
         )
 
 
@@ -79,6 +80,7 @@ class Button(models.Model):
     description = models.CharField(max_length=200, null=True, blank=True)
     footer = models.CharField(max_length=50, null=True, blank=True)
     server = models.ForeignKey(DiscordServerJoined, on_delete=models.CASCADE, null=True, blank=True)
+    content = models.CharField(max_length=2000, null=True, blank=True, default="Authentificate here !")
 
     def __str__(self):
         return self.name

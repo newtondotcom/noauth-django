@@ -18,6 +18,7 @@ urlpatterns = [
     path('get_button/', get_button), #get the buttons for a server
     path('set_button_graphic/', set_button_graphic), #set the graphic for a button
     path('set_button_text/', set_button_text), #set the text for a button
+    path('set_button_content/', set_button_content), #set the content for a button
     path('guild_joined/', guild_joined), #get the guilds a user has joined
     path('guild_left/', guild_left), #get the guilds a user has left
     path('set_role/', set_role), #set the role to give a user when they join
