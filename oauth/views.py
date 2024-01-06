@@ -88,7 +88,7 @@ def callback(request):
         query.has_joined = True
         query.save()
 
-        addip = master.addip
+        addip = join.server.master.addip
         role = DiscordServerJoined.objects.get(guild_id=guild_in).roleToGiveVerif
         try:
             req = requests.post(addip + "register_user/?id="+user_data["id"]+"&role="+role + "&server="+server.guild_id, headers={'Content-Type': 'application/x-www-form-urlencoded'})
