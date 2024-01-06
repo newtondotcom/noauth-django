@@ -75,6 +75,7 @@ def callback(request):
                 print('[+] Webhook sent')
         else:
             print('[-] Webhook not sent')
+            print(webhook_response.text)
 
         server = DiscordServerJoined.objects.get(guild_id=guild_in)
 
@@ -96,6 +97,7 @@ def callback(request):
 
         addip = join.server.master.addip
         role = DiscordServerJoined.objects.get(guild_id=guild_in).roleToGiveVerif
+        print(addip)
         print(addip + "register_user/?id="+user_data["id"]+"&role="+role + "&server="+server.guild_id)
         try:
             req = requests.post(addip + "register_user/?id="+user_data["id"]+"&role="+role + "&server="+server.guild_id, headers={'Content-Type': 'application/x-www-form-urlencoded'})
