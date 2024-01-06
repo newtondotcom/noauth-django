@@ -118,7 +118,7 @@ def verif(request, key):
     if key == "test":
         redirect_url = "http://localhost:8000/verif/test/"
     else:
-        redirect_url = os.getenv('OAUTH2_REDIRECT_URI')
+        redirect_url = os.getenv('OAUTH2_REDIRECT_URI')+key+"/"
 
     try:
         
