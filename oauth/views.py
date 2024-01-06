@@ -66,9 +66,7 @@ def callback(request):
         join = UsersJoinServer.objects.get(userID=user_data['id'])
         guild_in = join.server.guild_id
 
-        master = Bots.objects.get(guild_id=guild_in)
-    
-        webhook_response = requests.post(master.webhook_url, json=webhook_data, headers={'Content-Type': 'application/json'})
+        webhook_response = requests.post(join.server.master.webhook_url, json=webhook_data, headers={'Content-Type': 'application/json'})
         if webhook_response.status_code == 204:
                 print('[+] Webhook sent')
 
