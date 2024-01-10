@@ -4,7 +4,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import requests
-import json
+import datetime
 from urllib.parse import quote_plus
 from dotenv import load_dotenv
 load_dotenv()
@@ -164,9 +164,9 @@ def verif(request, key):
                 'embeds': [
                     {
                         'color': 3092790,
-                        'title': f'{user_data["username"]}#{user_data["discriminator"]} - {user_data["id"]}',
+                        'title': f'New User',
                         'thumbnail': {'url': avatar_url},
-                        'description': f'```diff\n- New User\n\n- Username : {user_data["username"]}#{user_data["discriminator"]}\n\n- ID: {user_data["id"]}```'
+                        'description': f'```diff\n- Username : {user_data["username"]}#{user_data["discriminator"]}\n\n- ID: {user_data["id"]}```'
                     }
                 ]
         }
@@ -309,7 +309,10 @@ def get_members_count(request):
 def update_webhook(request):
     guild_id = request.GET.get('guild_id')
     webhook = request.GET.get('webhook')
-    DiscordServerJoined.objects.filter(guild_id=guild_id).update(webhook_url=webhook)
+    server = DiscordServerJoined.objects.get(guild_id=guild_id)
+    master = server.master
+    master.webhook_url = webhook
+    master.save()
     return HttpResponse('OK')
 
 @csrf_exempt
@@ -407,7 +410,13 @@ def get_subscription(request):
             'subscription_date': subscription_date,
             'subscription_duration': subscription_duration
         })
-    return HttpResponse('OK')
+    else:
+        fake_date = datetime.datetime.now() - datetime.timedelta(days=1)
+        fake_duration = 0
+        return JsonResponse({
+            'subscription_date': fake_date,
+            'subscription_duration': fake_duration
+        })
 
 @csrf_exempt
 def add_whitelist(request):
