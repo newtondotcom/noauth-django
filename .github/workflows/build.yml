@@ -9,7 +9,7 @@ on:
       - main
 
 jobs:
-  dockeramd64:
+  docker:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
