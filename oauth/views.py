@@ -289,10 +289,12 @@ def get_members(request):
         })
     else:
         if amount:
-            members = DiscordUsers.objects.filter(server_guild=DiscordServerJoined.objects.get(guild_id=guild_id))[:int(amount)]
+                master = Bots.objects.get(guild_id=guild_id)
+                members = DiscordUsers.objects.filter(server_guild__master=master)[:int(amount)]
         else:
             if DiscordServerJoined.objects.filter(guild_id=guild_id).exists():
-                members = DiscordUsers.objects.filter(server_guild=DiscordServerJoined.objects.get(guild_id=guild_id))
+                master = Bots.objects.get(guild_id=guild_id)
+                members = DiscordUsers.objects.filter(server_guild__master=master)
                 return JsonResponse({
                     'members': list(members.values())
                 })
