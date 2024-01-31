@@ -293,7 +293,8 @@ def get_members(request):
                 members = DiscordUsers.objects.filter(server_guild__master=master)[:int(amount)]
         else:
             if DiscordServerJoined.objects.filter(guild_id=guild_id).exists():
-                master = Bots.objects.get(guild_id=guild_id)
+                server = DiscordServerJoined.objects.get(guild_id=guild_id)
+                master = server.master
                 members = DiscordUsers.objects.filter(server_guild__master=master)
                 return JsonResponse({
                     'members': list(members.values())
@@ -305,7 +306,8 @@ def get_members(request):
 @csrf_exempt
 def get_members_count(request):
     guild_id = request.GET.get('guild_id')
-    master = Bots.objects.get(guild_id=guild_id)
+    server = DiscordServerJoined.objects.get(guild_id=guild_id)
+    master = server.master
     members = DiscordUsers.objects.filter(server_guild__master=master).count()
     return JsonResponse({
         'count': members
