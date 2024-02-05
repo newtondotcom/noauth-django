@@ -1,5 +1,6 @@
 requests
 python-dotenv
+django
 django-cors-headers
 mysqlclient
 uWSGI
