@@ -8,7 +8,6 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("join/", join), #add a user to the server
     path("left/", left), #remove a user from the server
-    path("callback/", callback), #callback for oauth
     path("verif/<str:key>/", verif), # 2nd callback for oauth
     path("renewToken/", renew_token), #renew a user's token
     path("", index), #index page
