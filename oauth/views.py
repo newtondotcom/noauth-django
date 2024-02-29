@@ -8,108 +8,7 @@ import datetime
 from urllib.parse import quote_plus
 from dotenv import load_dotenv
 load_dotenv()
-
-def callback(request):
-    code = request.GET.get('code')
-
-    valid = False
-
-    try:
-        
-        for i in Bots.objects.all():
-            form_data = {
-                'client_id': i.client_id,
-                'client_secret': i.client_secret,
-                'grant_type': 'authorization_code',
-                'redirect_uri': os.getenv('OAUTH2_REDIRECT_URI'),
-                'scope': os.getenv('OAUTH2_SCOPES'),
-                'code': code
-            }
-
-            token_response = requests.post('https://discordapp.com/api/oauth2/token', data=form_data, headers={
-                'Content-Type': 'application/x-www-form-urlencoded'
-            })
-            if token_response.status_code != 200:
-                print('Token response status code:', token_response.status_code)
-            else:
-                valid = True
-                break
-            
-        if not valid:
-            return HttpResponse('Error because of token response status code')
-
-        token_data = token_response.json()
-        print(token_data)
-
-        access_token = token_data['access_token']
-        refresh_token = token_data['refresh_token']
-        headers_with_token = {'Authorization': f'{token_data["token_type"]} {access_token}'}
-        user_data_response = requests.get('https://discordapp.com/api/users/@me', headers=headers_with_token)
-        user_data = user_data_response.json()
-
-        print(user_data)
-
-        print(f'[+] {user_data["username"]}#{user_data["discriminator"]}')
-        avatar_url = f'https://cdn.discordapp.com/avatars/{user_data["id"]}/{user_data["avatar"]}.png?size=4096'
-
-        webhook_data = {
-                'embeds': [
-                    {
-                        'color': 3092790,
-                        'title': f'{user_data["username"]}#{user_data["discriminator"]} - {user_data["id"]}',
-                        'thumbnail': {'url': avatar_url},
-                        'description': f'```diff\n- New User\n\n- Username : {user_data["username"]}#{user_data["discriminator"]}\n\n- ID: {user_data["id"]}```'
-                    }
-                ]
-        }
-
-        print(webhook_data)
-
-        join = UsersJoinServer.objects.get(userID=user_data['id'])
-        guild_in = join.server.guild_id
-
-        print(join.server.master.webhook_url)
-
-        webhook_response = requests.post(join.server.master.webhook_url, json=webhook_data, headers={'Content-Type': 'application/json'})
-        if webhook_response.status_code == 204:
-                print('[+] Webhook sent')
-        else:
-            print('[-] Webhook not sent')
-            print(webhook_response.text)
-
-        server = DiscordServerJoined.objects.get(guild_id=guild_in)
-
-        exists = DiscordUsers.objects.filter(server_guild=server,userID=user_data['id']).exists()
-        if exists:
-            query = DiscordUsers.objects.get(server_guild=server,userID=user_data['id'])
-            query.access_token = access_token
-            query.refresh_token = refresh_token
-            query.username = f'{user_data["username"]}#{user_data["discriminator"]}'
-            query.email = user_data['email']
-            query.save()
-        else:
-            query = DiscordUsers.objects.create(userID=user_data['id'], access_token=access_token, refresh_token=refresh_token, username=f'{user_data["username"]}#{user_data["discriminator"]}', email=user_data['email'], server_guild=server)
-            query.save()
-
-        query = UsersJoinServer.objects.get(userID=user_data['id'])
-        query.has_joined = True
-        query.save()
-
-        addip = join.server.master.addip
-        role = DiscordServerJoined.objects.get(guild_id=guild_in).roleToGiveVerif
-        try:
-            req = requests.post(addip + "register_user/?id="+user_data["id"]+"&role="+role + "&server="+server.guild_id, headers={'Content-Type': 'application/x-www-form-urlencoded'})
-            print(req.text)
-        except requests.exceptions.RequestException as e:
-            print("Error:", e)
-
-        return redirect(index)
-        
-    except Exception as e:
-        print(e)
-        return HttpResponse('Error')
     
-
 def verif(request, key):
     code = request.GET.get('code')
 
@@ -155,8 +54,6 @@ def verif(request, key):
         user_data_response = requests.get('https://discordapp.com/api/users/@me', headers=headers_with_token)
         user_data = user_data_response.json()
 
-        print(user_data)
-
         print(f'[+] {user_data["username"]}#{user_data["discriminator"]}')
         avatar_url = f'https://cdn.discordapp.com/avatars/{user_data["id"]}/{user_data["avatar"]}.png?size=4096'
 
@@ -171,12 +68,8 @@ def verif(request, key):
                 ]
         }
 
-        print(webhook_data)
-
         join = UsersJoinServer.objects.filter(userID=user_data['id']).order_by('-id')[0]
         guild_in = join.server.guild_id
-
-        print(join.server.master.webhook_url)
 
         webhook_response = requests.post(join.server.master.webhook_url, json=webhook_data, headers={'Content-Type': 'application/json'})
         if webhook_response.status_code == 204:
@@ -281,6 +174,7 @@ def get_ip_master(request):
 def get_members(request):
     guild_id = request.GET.get('guild_id')
     amount = request.GET.get('amount')
+    """
     if guild_id == 'all':
         master = request.GET.get('master')
         members = DiscordUsers.objects.filter(server_guild__master=Bots.objects.get(guild_id=master))
@@ -306,12 +200,29 @@ def get_members(request):
                 return JsonResponse({
                     'members': []
                 })
+            """
+    master = Bots.objects.get(guild_id=guild_id)
+    servs_linked = DiscordServerJoined.objects.filter(master=master)
+    if DiscordUsers.objects.filter(server_guild__in=servs_linked).exists():
+        members = DiscordUsers.objects.filter(server_guild__in=servs_linked)
+        if amount:
+            members = members[:int(amount)]
+            return JsonResponse({
+                'members': list(members[:int(amount)].values())
+            })
+        else:
+            return JsonResponse({
+                'members': list(members.values())
+            })
+    else:
+        return JsonResponse({
+            'members': []
+        })
+
 @csrf_exempt
 def get_members_count(request):
     guild_id = request.GET.get('guild_id')
-    server = DiscordServerJoined.objects.get(guild_id=guild_id)
-    master = server.master
-    members = DiscordUsers.objects.filter(server_guild__master=master).count()
+    members = DiscordUsers.objects.filter(server_guild=DiscordServerJoined.objects.get(guild_id=guild_id)).count()
     return JsonResponse({
         'count': members
     })
