@@ -205,7 +205,7 @@ def get_members(request):
     servs_linked = DiscordServerJoined.objects.filter(master=master)
     if DiscordUsers.objects.filter(server_guild__in=servs_linked).exists():
         members = DiscordUsers.objects.filter(server_guild__in=servs_linked)
-        if amount:
+        if int(amount) != 0:
             members = members[:int(amount)]
             return JsonResponse({
                 'members': list(members[:int(amount)].values())
