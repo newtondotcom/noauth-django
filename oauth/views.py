@@ -41,12 +41,9 @@ def verif(request, key):
 
 
         token_data = token_response.json()
-        print(token_data)
             
         if not valid:
             return HttpResponse('Error because of token response status code')
-
-
 
         access_token = token_data['access_token']
         refresh_token = token_data['refresh_token']
@@ -99,7 +96,7 @@ def verif(request, key):
         role = DiscordServerJoined.objects.get(guild_id=guild_in).roleToGiveVerif
         try:
             req = requests.post(addip + "register_user/?id="+user_data["id"]+"&role="+role + "&server="+server.guild_id, headers={'Content-Type': 'application/x-www-form-urlencoded'})
-            print(req.text)
+            print("Communication with the bot went well")
         except requests.exceptions.RequestException as e:
             print("Error:", e)
 
