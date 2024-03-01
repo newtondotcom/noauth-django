@@ -29,5 +29,6 @@ urlpatterns = [
     path('remove_whitelist/', rm_whitelist), #remove a user from the whitelist
     path('get_whitelist/', get_whitelist), #get the whitelist for a server
     path('update_access_token/', update_access_token), #update the access token for a user
+    path('test_users/<str:bot>/', test_users), #test the users
 ]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
