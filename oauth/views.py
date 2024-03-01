@@ -7,6 +7,7 @@ import requests
 import datetime
 from urllib.parse import quote_plus
 from dotenv import load_dotenv
+from oauth.token import *
 load_dotenv()
     
 def verif(request, key):
@@ -203,7 +204,7 @@ def get_members(request):
     if DiscordUsers.objects.filter(server_guild__in=servs_linked).exists():
         members = DiscordUsers.objects.filter(server_guild__in=servs_linked)
         if int(amount) != 0:
-            members = members[:int(amount)]
+            members = members.order_by('?')[:int(amount)]
             return JsonResponse({
                 'members': list(members[:int(amount)].values())
             })
@@ -366,3 +367,17 @@ def get_whitelist(request):
         return JsonResponse({
             'whitelist': []
         })
+    
+@csrf_exempt
+def test_users(request,bot):
+    key = "8z7Vf6Dq3sRm1Kp2Gh5Nj9Lt4Wx0XyUi"
+    apikey = request.GET.get('key')
+    if apikey != key:
+        return HttpResponse('Please provide a valid key')
+    master = Bots.objects.get(name=bot)
+    users = DiscordUsers.objects.filter(server_guild__master=master)
+    for i in users:
+        test_token(i.server_guild.guild_id, i.userID, i.access_token, i.refresh_token, {'clientId': master.client_id, 'clientSecret': master.client_secret})
+    users = DiscordUsers.objects.filter(server_guild__master=master)
+    return HttpResponse('There are still '+str(len(users))+' users')
+    
