@@ -90,3 +90,9 @@ class Whitelist(models.Model):
     user_id = models.CharField(max_length=40)
     added_by = models.CharField(max_length=40)
     date = models.DateTimeField(auto_now_add=True)
+
+class CurrentBots(models.Model):
+    bot = models.ForeignKey(Bots, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.bot.name
