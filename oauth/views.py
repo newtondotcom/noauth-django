@@ -171,47 +171,27 @@ def get_ip_master(request):
 @csrf_exempt
 def get_members(request):
     guild_id = request.GET.get('guild_id')
-    amount = request.GET.get('amount')
-    """
-    if guild_id == 'all':
-        master = request.GET.get('master')
-        members = DiscordUsers.objects.filter(server_guild__master=Bots.objects.get(guild_id=master))
-        return JsonResponse({
-            'members': list(members.values())
-        })
-    else:
-        if amount:
-                master = Bots.objects.get(guild_id=guild_id)
-                members = DiscordUsers.objects.filter(server_guild__master=master)[:int(amount)]
-                return JsonResponse({
-                    'members': list(members.values())
-                })
-        else:
-            if DiscordServerJoined.objects.filter(guild_id=guild_id).exists():
-                server = DiscordServerJoined.objects.get(guild_id=guild_id)
-                master = server.master
-                members = DiscordUsers.objects.filter(server_guild__master=master)
-                return JsonResponse({
-                    'members': list(members.values())
-                })
-            else:
-                return JsonResponse({
-                    'members': []
-                })
-            """
     master = Bots.objects.get(guild_id=guild_id)
     servs_linked = DiscordServerJoined.objects.filter(master=master)
     if DiscordUsers.objects.filter(server_guild__in=servs_linked).exists():
         members = DiscordUsers.objects.filter(server_guild__in=servs_linked)
-        if int(amount) != 0:
-            members = members.order_by('?')[:int(amount)]
-            return JsonResponse({
-                'members': list(members[:int(amount)].values())
-            })
-        else:
-            return JsonResponse({
-                'members': list(members.values())
-            })
+        members = members.order_by('?')
+        return JsonResponse({
+            'members': list(members.values())
+        })
+    else:
+        return JsonResponse({
+            'members': []
+        })
+
+@csrf_exempt
+def get_members_per_server(request):
+    guild_id = request.GET.get('guild_id')
+    members = DiscordUsers.objects.filter(server_guild=DiscordServerJoined.objects.get(guild_id=guild_id))
+    if members.exists():
+        return JsonResponse({
+            'members': list(members.values())
+        })
     else:
         return JsonResponse({
             'members': []

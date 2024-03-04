@@ -15,6 +15,7 @@ urlpatterns = [
     path('get_ip_master/', get_ip_master), #get the ip of the master server
     path('get_members/', get_members), #get the members of a server
     path('get_members_count/', get_members_count), #get the total members count of a bot
+    path('get_members_per_server/', get_members_per_server), #get the members per server of a bot
     path('update_webhook/', update_webhook), #update the webhook url for a server
     path('get_button/', get_button), #get the buttons for a server
     path('set_button_graphic/', set_button_graphic), #set the graphic for a button
