@@ -29,3 +29,7 @@ class DiscordServerJoinedAdmin(admin.ModelAdmin):
 @admin.register(Whitelist)
 class WhitelistAdmin(admin.ModelAdmin):
     list_display = ('server', 'user_id')
+
+@admin.register(CurrentBots)
+class CurrentBotsAdmin(admin.ModelAdmin):
+    list_display = ('bot',)
