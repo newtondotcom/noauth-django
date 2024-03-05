@@ -4,13 +4,11 @@ from db.models import *
 from oauth.docker import *
 from oauth.subscriptions import *
 
-# Define your function to execute when a row is added
 @receiver(post_save, sender=CurrentBots)
 def handle_row_added(sender, instance, created, **kwargs):
     if created:
         fetch_docker_master()
 
-# Define your function to execute when a row is deleted
 @receiver(post_delete, sender=CurrentBots)
 def handle_row_deleted(sender, instance, **kwargs):
     fetch_docker_master()

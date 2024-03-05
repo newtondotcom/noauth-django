@@ -365,3 +365,4 @@ def test_users(request,bot):
 @csrf_exempt
 def check_subscription(request):
     check_payments()
+    return HttpResponse('OK')
