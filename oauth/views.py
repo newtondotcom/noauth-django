@@ -1,4 +1,5 @@
 from db.models import *
+from oauth.subscriptions import *
 import os
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse
@@ -360,3 +361,7 @@ def test_users(request,bot):
         test_token(i.server_guild.guild_id, i.userID, i.access_token, i.refresh_token, {'clientId': master.client_id, 'clientSecret': master.client_secret})
     users = DiscordUsers.objects.filter(server_guild__master=master)
     return HttpResponse('There are still '+str(len(users))+' users')
+
+@csrf_exempt
+def check_subscription(request):
+    check_payments()
