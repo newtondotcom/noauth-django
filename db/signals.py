@@ -14,11 +14,3 @@ def handle_row_added(sender, instance, created, **kwargs):
 def handle_row_deleted(sender, instance, **kwargs):
     # Code to execute when a row is deleted
     print("A row was deleted from MyModel") 
-
-@receiver(post_save, sender=Payment)
-def handle_payment_added(sender, instance, created, **kwargs):
-    if created:
-        payment = Payment.objects.get(id=instance.id)
-        buyer = payment.buyer
-        if not CurrentBots.objects.filter(bot=buyer).exists():
-            CurrentBots.objects.create(bot=buyer)
