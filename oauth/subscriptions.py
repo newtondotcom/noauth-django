@@ -1,13 +1,14 @@
-from db.models import *
-from datetime import datetime
+from db.models import CurrentBots, Payment
+from datetime import datetime, timedelta
+from django.utils import timezone
 
 def check_payments():
-    date = datetime.datetime.now()
+    current_date = timezone.now()
     bots = CurrentBots.objects.all()
     for bot in bots:
         payments = Payment.objects.filter(buyer=bot.bot, is_over=False)
         for payment in payments:
-            if  payment.date + datetime.timedelta(days=payment.duration) < date:
+            if payment.date + timedelta(days=payment.duration) < current_date:
                 payment.is_over = True
                 payment.save()
         if not Payment.objects.filter(buyer=bot.bot, is_over=False).exists():
