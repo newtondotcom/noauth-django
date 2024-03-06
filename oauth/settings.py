@@ -30,6 +30,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "oauth.middleware.ApiKeyMiddleware",
 ]
 
 ROOT_URLCONF = "oauth.urls"
