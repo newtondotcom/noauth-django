@@ -21,28 +21,6 @@ class DiscordServerJoined(models.Model):
     master = models.ForeignKey(Bots, on_delete=models.CASCADE)
     guild_id = models.CharField(max_length=60)
     roleToGiveVerif = models.CharField(max_length=60, null=True)
-    
-@receiver(post_save, sender=Bots)
-def create_button_and_server_joined(sender, instance, created, **kwargs):
-    if created:
-        
-        # Create a DiscordServerJoined instance
-        serv = DiscordServerJoined.objects.create(
-            master=instance, 
-            guild_id=instance.guild_id
-        )
-
-        # Create a Button instance
-        Button.objects.create(
-            server=serv,
-            image="https://i.imgur.com/AfFp7pu.png",
-            color=167772,  
-            name="Name",
-            title="Title",
-            description="Description",
-            footer="Footer",
-            content="Authentificate here !"
-        )
 
 
 ## Discord Users registered
