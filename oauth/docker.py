@@ -16,13 +16,13 @@ def fetch_docker_master():
     # bots = CurrentBots.objects.all()
     # body = { }
         
-def add_bot(bot):
+def add_bot(botObject):
     urlAdd =  url+"add"
     botJson = {
-        bot : 
+        "bot" : 
         {
-            "container_name" : bot.bot.name,
-            "port" : bot.bot.addip.split(":")[1]
+            "container_name" : botObject.bot.name,
+            "port" : botObject.bot.addip.split(":")[2].replace("/", "")
         }
     }
     print(botJson)
@@ -30,15 +30,16 @@ def add_bot(bot):
     if not response.status_code == 200:
         print("Docker master is down")
 
-def remove_bot(bot):
+def remove_bot(botObject):
     urlRemove = url+"remove"
     botJson = {
-        bot : 
+        "bot" : 
         {
-            "container_name" : bot.bot.name,
-            "port" : bot.bot.addip.split(":")[1]
+            "container_name" : botObject.bot.name,
+            "port" : botObject.bot.addip.split(":")[2].replace("/", "")
         }
     }
+    print(botJson)
     response = requests.post(urlRemove, json=botJson)
     if not response.status_code == 200:
         print("Docker master is down")

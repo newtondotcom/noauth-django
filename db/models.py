@@ -48,6 +48,8 @@ class Payment(models.Model):
     date = models.DateTimeField(auto_now_add=True)
     duration = models.IntegerField() # in days
     is_over = models.BooleanField(default=False)
+    has_started = models.BooleanField(default=False, null=True, blank=True)
+    start_date = models.DateTimeField(auto_now_add=False, null=True, blank=True)
 
 # Button models
 class Button(models.Model):

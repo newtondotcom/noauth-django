@@ -14,7 +14,7 @@ class ApiKeyMiddleware:
         if not cleanedPath.count("admin") > 0 and cleanedPath not in self.api_key_allowed_endpoints:
             if api_key_header and api_key_header.startswith('Api-Key '):
                 api_key = api_key_header.split(' ')[1]
-                keys = ["69f13396-66d1-4736-873e-0ddd2ba476ea"]
+                keys = ["69f13396-66d1-4736-873e-0ddd2ba476ea","f3e3e3e3-66d1-4736-873e-0ddd2ba476ea"]
                 KeyCorrect = False
                 for k in keys:
                     if k == api_key:
