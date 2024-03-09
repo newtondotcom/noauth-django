@@ -36,5 +36,5 @@ def added_payment(id_buying):
         payment_to_edit.start_date = timezone.now()
         payment_to_edit.save()
     if not CurrentBots.objects.filter(bot=bot).exists():
-        #CurrentBots.objects.create(bot=bot)
+        CurrentBots.objects.create(bot=bot)
         print("create")
