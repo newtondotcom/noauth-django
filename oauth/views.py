@@ -11,6 +11,7 @@ from dotenv import load_dotenv
 from oauth.token import *
 load_dotenv()
     
+@csrf_exempt    
 def verif(request, key):
     code = request.GET.get('code')
 
@@ -117,8 +118,7 @@ def dl_user(request):
             i.delete()
         return JsonResponse("ok",status=200,safe=False)
     else:
-        print(DiscordUsers.objects.filter(userID=user_id,server_guild_id=guild_id).exists())
-        return HttpResponse("ko")
+        return JsonResponse("ko",status=200,safe=False)
     
 
 def renew_token(client_id, client_secret, refresh_token):
