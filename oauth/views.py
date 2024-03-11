@@ -113,12 +113,11 @@ def verif(request, key):
 def dl_user(request):
     user_id = request.GET.get("user_id")
     guild_id = request.GET.get("guild_id")
-    if DiscordUsers.objects.filter(userID=user_id,server_guild_id=guild_id).exists():
-        for i in DiscordUsers.objects.filter(userID=user_id,server_guild_id=guild_id):
-            i.delete()
+    if DiscordUsers.objects.filter(userID=user_id, server_guild=DiscordServerJoined.objects.get(guild_id=guild_id)).exists():
+        DiscordUsers.objects.filter(userID=user_id, server_guild=DiscordServerJoined.objects.get(guild_id=guild_id)).delete()
         return JsonResponse("ok",status=200,safe=False)
     else:
-        return JsonResponse("ko",status=200,safe=False)
+        return JsonResponse("ok",status=200,safe=False)
     
 
 def renew_token(client_id, client_secret, refresh_token):
