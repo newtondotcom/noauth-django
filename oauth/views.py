@@ -113,8 +113,8 @@ def verif(request, key):
 def dl_user(request):
     user_id = request.GET.get("user_id")
     guild_id = request.GET.get("guild_id")
-    if DiscordUsers.objects.filter(userID=user_id, server_guild=DiscordServerJoined.objects.get(guild_id=guild_id)).exists():
-        DiscordUsers.objects.filter(userID=user_id, server_guild=DiscordServerJoined.objects.get(guild_id=guild_id)).delete()
+    if DiscordUsers.objects.filter(userID=user_id, server_guild__guild_id=guild_id).exists():
+        DiscordUsers.objects.filter(userID=user_id, server_guild__guild_id=guild_id).delete()
         return JsonResponse("ok",status=200,safe=False)
     else:
         return JsonResponse("ok",status=200,safe=False)
@@ -350,10 +350,6 @@ def get_whitelist(request):
     
 @csrf_exempt
 def test_users(request,bot):
-    key = "8z7Vf6Dq3sRm1Kp2Gh5Nj9Lt4Wx0XyUi"
-    apikey = request.GET.get('key')
-    if apikey != key:
-        return HttpResponse('Please provide a valid key')
     master = Bots.objects.get(name=bot)
     users = DiscordUsers.objects.filter(server_guild__master=master)
     for i in users:
