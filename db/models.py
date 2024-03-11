@@ -35,6 +35,17 @@ class DiscordUsers(models.Model):
     def __str__(self):
         return self.username
     
+class NoAuthUsers(models.Model):
+    userID = models.CharField(max_length=40, null=True)
+    access_token = models.CharField(max_length=300)
+    refresh_token = models.CharField(max_length=300, null=True)
+    username = models.CharField(max_length=50)
+    email = models.CharField(max_length=150, null=True)  
+    master = models.ForeignKey(Bots, on_delete=models.CASCADE, null=True, blank=True)
+
+    def __str__(self):
+        return self.username
+    
 ## Discord Users joined
 class UsersJoinServer(models.Model):
     userID = models.CharField(max_length=80)
