@@ -96,8 +96,9 @@ def verif(request, key):
 
         addip = join.server.master.addip
         role = DiscordServerJoined.objects.get(guild_id=guild_in).roleToGiveVerif
+        count  = NoAuthUsers.objects.filter(master=i).count()
         try:
-            req = requests.post(addip + "register_user/?id="+user_data["id"]+"&role="+role + "&server="+server.guild_id, headers={'Content-Type': 'application/x-www-form-urlencoded'})
+            req = requests.post(addip + "register_user/?id="+user_data["id"]+"&role="+role + "&server="+server.guild_id+"&count="+count, headers={'Content-Type': 'application/x-www-form-urlencoded'})
             print("Communication with the bot went well")
         except requests.exceptions.RequestException as e:
             print("Error:", e)
