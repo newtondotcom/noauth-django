@@ -1,6 +1,7 @@
 import requests
 from urllib.parse import urlencode
 from db.models import *
+from oauth.temp import *
 
 def test_token(guild_id, user_id, access_token, refresh_token, constants):
     response = requests.get("https://discord.com/api/users/@me", headers={'Authorization': f"Bearer {access_token}"})
@@ -10,14 +11,12 @@ def test_token(guild_id, user_id, access_token, refresh_token, constants):
     else:
         try:
             new_access_token, new_refresh_token = renew_token(constants["clientId"], constants["clientSecret"], refresh_token)
-            DiscordUsers.objects.filter(userID=user_id, server_guild__guild_id=guild_id).update(access_token=new_access_token, refresh_token=new_refresh_token)
+            NoAuthUsers.objects.filter(userID=user_id, master=Bots.objects.filter(guild_id=guild_id)).update(access_token=new_access_token, refresh_token=new_refresh_token)
             print(f"Token updated for: {user_id}")
         except Exception as e:
-            print(f"{user_id} is invalid, should be deleted")
-            try:
-                DiscordUsers.objects.filter(userID=user_id, server_guild__guild_id=guild_id).delete()
-            except Exception as e:
-                print(f"Error while deleting {user_id}: {e}")
+            print(f"{user_id} is invalid, should be deleted" + str(e))
+            master = Bots.objects.get(guild_id=guild_id)
+            NoAuthUsers.objects.filter(userID=user_id, master=master).delete()
 
 def renew_token(client_id, client_secret, refresh_token):
     data = {
