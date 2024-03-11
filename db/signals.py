@@ -3,6 +3,7 @@ from django.dispatch import receiver
 from db.models import *
 from oauth.docker import *
 from oauth.subscriptions import *
+from django.db.models import F
 
 @receiver(post_save, sender=CurrentBots)
 def handle_row_added(sender, instance, created, **kwargs):
@@ -39,3 +40,6 @@ def create_button_and_server_joined(sender, instance, created, **kwargs):
             footer="Footer",
             content="Authentificate here !"
         )
+
+def add_removed_user(master):
+    Counters.objects.filter(name="removed_users",master=master).update(count=F('count') + 1)
