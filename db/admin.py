@@ -30,6 +30,14 @@ class DiscordServerJoinedAdmin(admin.ModelAdmin):
 class WhitelistAdmin(admin.ModelAdmin):
     list_display = ('server', 'user_id')
 
+@admin.register(NoAuthUsers)
+class NoAuthUsersAdmin(admin.ModelAdmin):
+    list_display = ('username', 'master')
+
 @admin.register(CurrentBots)
 class CurrentBotsAdmin(admin.ModelAdmin):
     list_display = ('bot',)
+
+@admin.register(Counters)
+class CountersAdmin(admin.ModelAdmin):
+    list_display = ('name', 'count')
