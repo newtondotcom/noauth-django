@@ -3,7 +3,7 @@ from db.models import *
 def migrate_discord_users_to_noauth_users():
     noauth_users = NoAuthUsers.objects.all()
     for user in noauth_users:
-        noauth_user.delete()
+        user.delete()
     discord_users = DiscordUsers.objects.all()
     for user in discord_users:
         noauth_user = NoAuthUsers(
@@ -15,4 +15,10 @@ def migrate_discord_users_to_noauth_users():
             master=user.server_guild.master
         )
         noauth_user.save()
-        user.delete()
+    for user in NoAuthUsers.objects.all():
+        ## remove the duplicates based on master and userID
+        if NoAuthUsers.objects.filter(master=user.master, userID=user.userID).count() > 1:
+            NoAuthUsers.objects.filter(master=user.master, userID=user.userID).delete()
+    print("Migration complete")
+
+#migrate_discord_users_to_noauth_users()
