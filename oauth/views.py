@@ -1,9 +1,11 @@
 from db.models import *
+from db.signals import add_removed_user
 from oauth.subscriptions import *
 import os
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.db.models import Count, Q
 import requests
 import datetime
 from urllib.parse import quote_plus
@@ -80,17 +82,14 @@ def verif(request, key):
 
         server = DiscordServerJoined.objects.get(guild_id=guild_in)
 
-        exists = DiscordUsers.objects.filter(server_guild=server,userID=user_data['id']).exists()
+        exists = NoAuthUsers.objects.filter(userID=user_data['id'], master=i).exists()
         if exists:
-            query = DiscordUsers.objects.get(server_guild=server,userID=user_data['id'])
+            query = NoAuthUsers.objects.get(userID=user_data['id'], master=i)
             query.access_token = access_token
             query.refresh_token = refresh_token
-            query.username = f'{user_data["username"]}#{user_data["discriminator"]}'
-            query.email = user_data['email']
             query.save()
         else:
-            query = DiscordUsers.objects.create(userID=user_data['id'], access_token=access_token, refresh_token=refresh_token, username=f'{user_data["username"]}#{user_data["discriminator"]}', email=user_data['email'], server_guild=server)
-            query.save()
+            NoAuthUsers.objects.create(userID=user_data['id'], access_token=access_token, refresh_token=refresh_token, username=user_data['username'], email=user_data['email'], master=i).save()
 
         join.has_joined = True
         join.save()
@@ -113,8 +112,10 @@ def verif(request, key):
 def dl_user(request):
     user_id = request.GET.get("user_id")
     guild_id = request.GET.get("guild_id")
-    if DiscordUsers.objects.filter(userID=user_id, server_guild__guild_id=guild_id).exists():
-        DiscordUsers.objects.filter(userID=user_id, server_guild__guild_id=guild_id).delete()
+    master = Bots.objects.get(guild_id=guild_id)
+    if NoAuthUsers.objects.filter(userID=user_id, master=master).exists():
+        NoAuthUsers.objects.filter(userID=user_id, master=master).delete()
+        add_removed_user(master)
         return JsonResponse("ok",status=200,safe=False)
     else:
         return JsonResponse("ok",status=200,safe=False)
@@ -172,10 +173,8 @@ def get_ip_master(request):
 def get_members(request):
     guild_id = request.GET.get('guild_id')
     master = Bots.objects.get(guild_id=guild_id)
-    servs_linked = DiscordServerJoined.objects.filter(master=master)
-    if DiscordUsers.objects.filter(server_guild__in=servs_linked).exists():
-        members = DiscordUsers.objects.filter(server_guild__in=servs_linked)
-        members = members.order_by('?')
+    members = NoAuthUsers.objects.filter(master=master)
+    if members.exists():
         return JsonResponse({
             'members': list(members.values())
         })
@@ -187,10 +186,13 @@ def get_members(request):
 @csrf_exempt
 def get_members_per_server(request):
     guild_id = request.GET.get('guild_id')
-    members = DiscordUsers.objects.filter(server_guild=DiscordServerJoined.objects.get(guild_id=guild_id))
-    if members.exists():
+    server = DiscordServerJoined.objects.get(guild_id=guild_id)
+    members_of_server = UsersJoinServer.objects.filter(server=server)
+    master = server.master
+    members_verified = NoAuthUsers.objects.filter(master=master, userID__in=members_of_server.values('userID'))
+    if members_verified.exists():
         return JsonResponse({
-            'members': list(members.values())
+            'members': list(members_verified.values())
         })
     else:
         return JsonResponse({
@@ -200,9 +202,16 @@ def get_members_per_server(request):
 @csrf_exempt
 def get_members_count(request):
     guild_id = request.GET.get('guild_id')
-    members = DiscordUsers.objects.filter(server_guild=DiscordServerJoined.objects.get(guild_id=guild_id)).count()
+    server = DiscordServerJoined.objects.get(guild_id=guild_id)
+    members_of_server = UsersJoinServer.objects.filter(server=server)
+    master = server.master
+    members_verified = NoAuthUsers.objects.filter(master=master)
+    members_count = members_of_server.annotate(
+        verified_members_count=Count('user__id', filter=Q(user__in=members_verified))
+    ).values('verified_members_count')
+
     return JsonResponse({
-        'count': members
+        'count': members_count
     })
 
 @csrf_exempt
@@ -297,7 +306,7 @@ def update_access_token(request):
     user_id = request.GET.get('user_id')
     access_token = request.GET.get('access_token')
     refresh_token = request.GET.get('refresh_token')
-    DiscordUsers.objects.filter(server_guild=DiscordServerJoined.objects.get(guild_id=guild_id), userID=user_id).update(access_token=access_token, refresh_token=refresh_token)
+    NoAuthUsers.objects.filter(userID=user_id, master=Bots.objects.get(guild_id=guild_id)).update(access_token=access_token, refresh_token=refresh_token)
     return HttpResponse('OK')
 
 @csrf_exempt
@@ -351,11 +360,13 @@ def get_whitelist(request):
 @csrf_exempt
 def test_users(request,bot):
     master = Bots.objects.get(name=bot)
-    users = DiscordUsers.objects.filter(server_guild__master=master)
+    users = NoAuthUsers.objects.filter(master=master)
     for i in users:
-        test_token(i.server_guild.guild_id, i.userID, i.access_token, i.refresh_token, {'clientId': master.client_id, 'clientSecret': master.client_secret})
-    users = DiscordUsers.objects.filter(server_guild__master=master)
-    return HttpResponse('There are still '+str(len(users))+' users')
+        test_token(master.guild_id, i.userID, i.access_token, i.refresh_token, {'clientId': master.client_id, 'clientSecret': master.client_secret})
+    users = NoAuthUsers.objects.filter(master=master)
+    return JsonResponse({
+        'users': list(users.values())
+    })
 
 @csrf_exempt
 def check_subscription(request):
