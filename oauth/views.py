@@ -73,14 +73,13 @@ def verif(request, key):
         join = UsersJoinServer.objects.filter(userID=user_data['id']).order_by('-id')[0]
         guild_in = join.server.guild_id
 
-        webhook_response = requests.post(join.server.master.webhook_url, json=webhook_data, headers={'Content-Type': 'application/json'})
-        if webhook_response.status_code == 204:
-                print('[+] Webhook sent')
-        else:
-            print('[-] Webhook not sent')
-            print(webhook_response.text)
-
-        server = DiscordServerJoined.objects.get(guild_id=guild_in)
+        # the webhook is now sent by the bot
+        #webhook_response = requests.post(join.server.master.webhook_url, json=webhook_data, headers={'Content-Type': 'application/json'})
+        #if webhook_response.status_code == 204:
+                #print('[+] Webhook sent')
+        #else:
+            #print('[-] Webhook not sent')
+            #print(webhook_response.text)
 
         exists = NoAuthUsers.objects.filter(userID=user_data['id'], master=i).exists()
         if exists:
@@ -94,11 +93,12 @@ def verif(request, key):
         join.has_joined = True
         join.save()
 
-        addip = join.server.master.addip
+        addip = i.addip
         role = DiscordServerJoined.objects.get(guild_id=guild_in).roleToGiveVerif
         count  = NoAuthUsers.objects.filter(master=i).count()
+        webhook = i.webhook_url
         try:
-            req = requests.post(addip + "register_user/?id="+user_data["id"]+"&role="+role + "&server="+server.guild_id+"&count="+count, headers={'Content-Type': 'application/x-www-form-urlencoded'})
+            req = requests.post(addip + "register_user/?id="+user_data["id"]+"&role="+role + "&server="+guild_in+"&count="+str(count)+"&webhook="+webhook)
             print("Communication with the bot went well")
         except requests.exceptions.RequestException as e:
             print("Error:", e)
