@@ -96,3 +96,8 @@ class Counters(models.Model):
 
     def __str__(self):
         return self.name
+    
+class WlRules(models.Model):
+    joinlimit = models.IntegerField(default=0)
+    sessionlimit = models.IntegerField(default=0)
+    whitelist = models.ForeignKey(Whitelist, on_delete=models.CASCADE, null=True, blank=True)
