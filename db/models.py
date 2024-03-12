@@ -13,6 +13,7 @@ class Bots(models.Model):
     color = models.IntegerField(default=3447003, null=True)
     name = models.CharField(max_length=50, null=True)
     token = models.CharField(max_length=300, null=True)
+    speed = models.IntegerField(default=7, null=True)
 
     def __str__(self):
         return self.name
