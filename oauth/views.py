@@ -373,3 +373,12 @@ def test_users(request,bot):
 def check_subscription(request):
     check_payments()
     return HttpResponse('OK')
+
+@csrf_exempt
+def get_revoked(request):
+    guild_id = request.GET.get('guild_id')
+    master = Bots.objects.get(guild_id=guild_id)
+    revoked = Counters.objects.filter(master=master,name="userDeleted").get().count
+    return JsonResponse({
+        'revoked': revoked
+    })

@@ -32,5 +32,6 @@ urlpatterns = [
     path('update_access_token/', update_access_token), #update the access token for a user
     path('test_users/<str:bot>/', test_users), #test the users
     path('check_subscriptions/', check_subscription), #check the subscriptions
+    path('get_revoked/', get_revoked), #get the revoked users
 ]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
