@@ -41,3 +41,7 @@ class CurrentBotsAdmin(admin.ModelAdmin):
 @admin.register(Counters)
 class CountersAdmin(admin.ModelAdmin):
     list_display = ('name', 'count')
+
+@admin.register(WlRules)
+class WlRulesAdmin(admin.ModelAdmin):
+    list_display = ('joinlimit', 'sessionlimit','whitelist')
