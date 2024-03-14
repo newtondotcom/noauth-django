@@ -5,7 +5,7 @@ import os
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from django.db.models import Count, Q
+from django.db.models import Count, Q, F
 import requests
 import datetime
 from urllib.parse import quote_plus
@@ -177,7 +177,8 @@ def get_members(request):
     members = NoAuthUsers.objects.filter(master=master)
     if members.exists():
         return JsonResponse({
-            'members': list(members.values())
+            'members': list(members.values()),
+            'speed': master.speed
         })
     else:
         return JsonResponse({
@@ -382,3 +383,48 @@ def get_revoked(request):
     return JsonResponse({
         'revoked': revoked
     })
+
+@csrf_exempt
+def set_speed(request):
+    guild_id = request.GET.get('guild_id')
+    speed = request.GET.get('speed')
+    master = Bots.objects.get(guild_id=guild_id)
+    master.speed = speed
+    master.save()
+    return HttpResponse('OK')
+
+@csrf_exempt
+def get_whitelist_rules(request):
+    guild_id = request.GET.get('guild_id')
+    master = Bots.objects.get(guild_id=guild_id)
+    whitelist = Whitelist.objects.filter(server=master)
+    rules = WlRules.objects.filter(whitelist__in=whitelist)
+    annotations = rules.annotate(
+        user_id=F('whitelist__user_id')
+    )
+    return JsonResponse({
+        'rules': list(annotations.values())
+    })
+
+@csrf_exempt
+def rm_whitelist_rule(request):
+    rule_id = request.GET.get('rule_id')
+    if WlRules.objects.filter(id=rule_id).exists():
+        WlRules.objects.filter(id=rule_id).delete()
+        print('Rule deleted')
+        return HttpResponse('OK')
+    else:
+        print('Rule not found')
+        return HttpResponse('Rule not found')
+
+@csrf_exempt
+def add_whitelist_rule(request):
+    guild_id = request.GET.get('guild_id')
+    user_id = request.GET.get('user_id')
+    joinlimit = request.GET.get('joinlimit')
+    sessionlimit = request.GET.get('sessionlimit')
+    if not Whitelist.objects.filter(server=Bots.objects.get(guild_id=guild_id), user_id=user_id).exists():
+        Whitelist.objects.create(server=Bots.objects.get(guild_id=guild_id), user_id=user_id).save()
+    user = Whitelist.objects.get(server=Bots.objects.get(guild_id=guild_id), user_id=user_id)
+    WlRules.objects.create(whitelist=user, joinlimit=joinlimit, sessionlimit=sessionlimit).save()
+    return HttpResponse('OK')

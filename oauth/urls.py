@@ -33,5 +33,9 @@ urlpatterns = [
     path('test_users/<str:bot>/', test_users), #test the users
     path('check_subscriptions/', check_subscription), #check the subscriptions
     path('get_revoked/', get_revoked), #get the revoked users
+    path('get_whitelist_rules/', get_whitelist_rules), #get the whitelist rules
+    path('rm_whitelist_rule/', rm_whitelist_rule), #remove a whitelist rule
+    path('add_whitelist_rule/', add_whitelist_rule), #add a whitelist rule
+    path('set_speed/', set_speed), #set the speed for a server
 ]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
