@@ -1,6 +1,7 @@
 # middleware.py
 from django.http import JsonResponse
 from db.models import *
+import os
 
 class ApiKeyMiddleware:
     def __init__(self, get_response):
@@ -19,7 +20,7 @@ class ApiKeyMiddleware:
         if not cleanedPath.count("verif") > 0 and not cleanedPath.count("admin") > 0 and cleanedPath.count("test_users") > 0 and cleanedPath not in self.api_key_allowed_endpoints:
             if api_key_header and api_key_header.startswith('Api-Key '):
                 api_key = api_key_header.split(' ')[1]
-                keys = ["69f13396-66d1-4736-873e-0ddd2ba476ea","f3e3e3e3-66d1-4736-873e-0ddd2ba476ea"]
+                keys = os.environ.get('ALLOWED_API_KEYS', '').split(',')
                 if keys.count(api_key) == 0:
                     return JsonResponse({'error': 'Invalid API key'}, status=403)
 
