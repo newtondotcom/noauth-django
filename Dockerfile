@@ -1,4 +1,4 @@
-FROM python:3.8
+FROM python:alpine3.19
 
 
 ENV DockerHOME=/home/app/webapp
