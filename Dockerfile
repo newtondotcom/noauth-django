@@ -1,12 +1,6 @@
 FROM python:3.8
-
-
 ENV DockerHOME=/home/app/webapp
-
-
 EXPOSE 8000
-
-
 RUN mkdir -p $DockerHOME
 WORKDIR $DockerHOME
 
