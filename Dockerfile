@@ -32,13 +32,13 @@ RUN --mount=type=secret,id=OAUTH2_REDIRECT_URI \
     --mount=type=secret,id=DB_HOST \
     --mount=type=secret,id=DB_PORT \
     --mount=type=secret,id=MASTER_DOCKER_URL \
-    sh -c 'echo "OAUTH2_REDIRECT_URI=$(cat /run/secrets/OAUTH2_REDIRECT_URI)" \
-    "OAUTH2_SCOPES=$(cat /run/secrets/OAUTH2_SCOPES)" \
-    "DB_NAME=$(cat /run/secrets/DB_NAME)" \
-    "DB_USER=$(cat /run/secrets/DB_USER)" \
-    "DB_PASSWORD=$(cat /run/secrets/DB_PASSWORD)" \
-    "DB_HOST=$(cat /run/secrets/DB_HOST)" \
-    "DB_PORT=$(cat /run/secrets/DB_PORT)" \
+    sh -c 'echo "OAUTH2_REDIRECT_URI=$(cat /run/secrets/OAUTH2_REDIRECT_URI)" \n\
+    "OAUTH2_SCOPES=$(cat /run/secrets/OAUTH2_SCOPES)" \n\
+    "DB_NAME=$(cat /run/secrets/DB_NAME)" \n\
+    "DB_USER=$(cat /run/secrets/DB_USER)" \n\
+    "DB_PASSWORD=$(cat /run/secrets/DB_PASSWORD)" \n\
+    "DB_HOST=$(cat /run/secrets/DB_HOST)" \n\
+    "DB_PORT=$(cat /run/secrets/DB_PORT)" \n\
     "MASTER_DOCKER_URL=$(cat /run/secrets/MASTER_DOCKER_URL)" > .env'
 
 COPY entrypoint.sh $DockerHOME/
