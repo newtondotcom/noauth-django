@@ -32,7 +32,6 @@ RUN --mount=type=secret,id=OAUTH2_REDIRECT_URI \
     --mount=type=secret,id=DB_HOST \
     --mount=type=secret,id=DB_PORT \
     --mount=type=secret,id=MASTER_DOCKER_URL \
-    ls -l /run/secrets \
     cat /run/secrets/OAUTH2_REDIRECT_URI \
     /run/secrets/OAUTH2_SCOPES \
     /run/secrets/DB_NAME \
