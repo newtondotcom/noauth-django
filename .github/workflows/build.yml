@@ -1,16 +1,5 @@
 name: Build
 
-env:
-  DOCKER_TAG: ${{ secrets.DOCKER_TAG }}
-  OAUTH2_REDIRECT_URI: ${{ secrets.OAUTH2_REDIRECT_URI }}
-  OAUTH2_SCOPES: ${{ secrets.OAUTH2_SCOPES }}
-  DB_NAME: ${{ secrets.DB_NAME }}
-  DB_USER: ${{ secrets.DB_USER }}
-  DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-  DB_HOST: ${{ secrets.DB_HOST }}
-  DB_PORT: ${{ secrets.DB_PORT }}
-  MASTER_DOCKER_URL: ${{ secrets.MASTER_DOCKER_URL }}
-
 on:
   push:
     branches:
@@ -35,15 +24,15 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ env.DOCKER_TAG }}
+          tags: ${{ secrets.DOCKER_TAG }}
           platforms: linux/amd64
           #, linux/arm64
           secrets: |
-            "AUTH2_REDIRECT_URI: ${{ env.OAUTH2_REDIRECT_URI }}"
-            "OAUTH2_SCOPES: ${{ env.OAUTH2_SCOPES }}"
-            "DB_NAME: ${{ env.DB_NAME }}"
-            "DB_USER: ${{ env.DB_USER }}"
-            "DB_PASSWORD: ${{ env.DB_PASSWORD }}"
-            "DB_HOST: ${{ env.DB_HOST }}"
-            "DB_PORT: ${{ env.DB_PORT }}"
-            "MASTER_DOCKER_URL: ${{ env.MASTER_DOCKER_URL }}"
+            "AUTH2_REDIRECT_URI: ${{ secrets.OAUTH2_REDIRECT_URI }}"
+            "OAUTH2_SCOPES: ${{ secrets.OAUTH2_SCOPES }}"
+            "DB_NAME: ${{ secrets.DB_NAME }}"
+            "DB_USER: ${{ secrets.DB_USER }}"
+            "DB_PASSWORD: ${{ secrets.DB_PASSWORD }}"
+            "DB_HOST: ${{ secrets.DB_HOST }}"
+            "DB_PORT: ${{ secrets.DB_PORT }}"
+            "MASTER_DOCKER_URL: ${{ secrets.MASTER_DOCKER_URL }}"
