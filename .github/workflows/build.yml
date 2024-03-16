@@ -1,7 +1,7 @@
-name: Build and Push Docker Images
+name: Build
 
 env:
-  DOCKER_TAG: newtondotcom/noauthdjango:latest
+  DOCKER_TAG: ${{ secrets.DOCKER_TAG }}
   OAUTH2_REDIRECT_URI: ${{ secrets.OAUTH2_REDIRECT_URI }}
   OAUTH2_SCOPES: ${{ secrets.OAUTH2_SCOPES }}
   DB_NAME: ${{ secrets.DB_NAME }}
