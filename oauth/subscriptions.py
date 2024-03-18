@@ -8,7 +8,6 @@ def check_payments():
     for bot in bots:
         if Payment.objects.filter(buyer=bot.bot, is_over=False, has_started=True).exists():
             payment = Payment.objects.filter(buyer=bot.bot, is_over=False, has_started=True).first()
-            print(payment.start_date + timedelta(days=payment.duration) < current_date)
             if payment.start_date + timedelta(days=payment.duration) < current_date:
                 payment.is_over = True
                 payment.save()
@@ -18,9 +17,12 @@ def check_payments():
                     payment_to_edit.has_started = True
                     payment_to_edit.start_date = timezone.now()
                     payment_to_edit.save()
+                    print("Another payment")
+                else:
+                    print("Bot deleted")
     ## Check if there is a bot without payment                
     for bot in bots:
-        if not Payment.objects.filter(buyer=bot.bot, is_over=False, has_started=False).exists():
+        if not Payment.objects.filter(buyer=bot.bot, is_over=False, has_started=True).exists():
             CurrentBots.objects.filter(bot=bot.bot).delete()
 
 
