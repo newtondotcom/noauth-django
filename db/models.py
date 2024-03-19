@@ -77,14 +77,6 @@ class CurrentBots(models.Model):
     def __str__(self):
         return self.bot.name
     
-class Counters(models.Model):
-    name = models.CharField(max_length=40, null=True, blank=True)
-    count = models.IntegerField(default=0)
-    master = models.ForeignKey(Bots, on_delete=models.CASCADE, null=True, blank=True)
-
-    def __str__(self):
-        return self.name
-    
 class WlRules(models.Model):
     joinlimit = models.IntegerField(default=0)
     sessionlimit = models.IntegerField(default=0)

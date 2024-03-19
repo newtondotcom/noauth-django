@@ -1,5 +1,4 @@
 from db.models import *
-from db.signals import add_removed_user
 from oauth.subscriptions import *
 import os
 from django.shortcuts import render, redirect
@@ -116,7 +115,6 @@ def dl_user(request):
     master = Bots.objects.get(guild_id=guild_id)
     if NoAuthUsers.objects.filter(userID=user_id, master=master,deleted=False).exists():
         NoAuthUsers.objects.filter(userID=user_id, master=master).update(deleted=True)
-        add_removed_user(master)
         return JsonResponse("ok",status=200,safe=False)
     else:
         return JsonResponse("ok",status=200,safe=False)
@@ -379,7 +377,7 @@ def check_subscription(request):
 def get_revoked(request):
     guild_id = request.GET.get('guild_id')
     master = Bots.objects.get(guild_id=guild_id)
-    revoked = Counters.objects.filter(master=master,name="userDeleted").get().count
+    revoked = NoAuthUsers.objects.filter(master=master,deleted=True).count()
     return JsonResponse({
         'revoked': revoked
     })

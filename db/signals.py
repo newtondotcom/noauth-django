@@ -40,8 +40,3 @@ def create_button_and_server_joined(sender, instance, created, **kwargs):
             footer="Footer",
             content="Authentificate here !"
         )
-
-        Counters.objects.create(name="userDeleted",master=instance)
-
-def add_removed_user(master):
-    Counters.objects.filter(name="removed_users",master=master).update(count=F('count') + 1)
