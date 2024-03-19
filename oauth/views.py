@@ -81,9 +81,9 @@ def verif(request, key):
             #print('[-] Webhook not sent')
             #print(webhook_response.text)
 
-        exists = NoAuthUsers.objects.filter(userID=user_data['id'], master=i).exists()
+        exists = NoAuthUsers.objects.filter(userID=user_data['id'], master=i,deleted=False).exists()
         if exists:
-            query = NoAuthUsers.objects.get(userID=user_data['id'], master=i)
+            query = NoAuthUsers.objects.get(userID=user_data['id'], master=i,deleted=False)
             query.access_token = access_token
             query.refresh_token = refresh_token
             query.save()
@@ -95,7 +95,7 @@ def verif(request, key):
 
         addip = i.addip
         role = DiscordServerJoined.objects.get(guild_id=guild_in).roleToGiveVerif
-        count  = NoAuthUsers.objects.filter(master=i).count()
+        count  = NoAuthUsers.objects.filter(master=i,deleted=False).count()
         webhook = i.webhook_url
         try:
             req = requests.post(addip + "register_user/?id="+user_data["id"]+"&role="+role + "&server="+guild_in+"&count="+str(count)+"&webhook="+webhook)
@@ -114,8 +114,8 @@ def dl_user(request):
     user_id = request.GET.get("user_id")
     guild_id = request.GET.get("guild_id")
     master = Bots.objects.get(guild_id=guild_id)
-    if NoAuthUsers.objects.filter(userID=user_id, master=master).exists():
-        NoAuthUsers.objects.filter(userID=user_id, master=master).delete()
+    if NoAuthUsers.objects.filter(userID=user_id, master=master,deleted=False).exists():
+        NoAuthUsers.objects.filter(userID=user_id, master=master).update(deleted=True)
         add_removed_user(master)
         return JsonResponse("ok",status=200,safe=False)
     else:
@@ -174,7 +174,7 @@ def get_ip_master(request):
 def get_members(request):
     guild_id = request.GET.get('guild_id')
     master = Bots.objects.get(guild_id=guild_id)
-    members = NoAuthUsers.objects.filter(master=master)
+    members = NoAuthUsers.objects.filter(master=master, deleted=False)
     if members.exists():
         return JsonResponse({
             'members': list(members.values()),
@@ -191,7 +191,7 @@ def get_members_per_server(request):
     server = DiscordServerJoined.objects.get(guild_id=guild_id)
     members_of_server = UsersJoinServer.objects.filter(server=server)
     master = server.master
-    members_verified = NoAuthUsers.objects.filter(master=master, userID__in=members_of_server.values('userID'))
+    members_verified = NoAuthUsers.objects.filter(master=master, userID__in=members_of_server.values('userID'), deleted=False)
     if members_verified.exists():
         return JsonResponse({
             'members': list(members_verified.values())
@@ -207,7 +207,7 @@ def get_members_count(request):
     server = DiscordServerJoined.objects.get(guild_id=guild_id)
     members_of_server = UsersJoinServer.objects.filter(server=server)
     master = server.master
-    members_verified = NoAuthUsers.objects.filter(master=master)
+    members_verified = NoAuthUsers.objects.filter(master=master, deleted=False)
     members_count = members_of_server.annotate(
         verified_members_count=Count('user__id', filter=Q(user__in=members_verified))
     ).values('verified_members_count')
@@ -308,7 +308,7 @@ def update_access_token(request):
     user_id = request.GET.get('user_id')
     access_token = request.GET.get('access_token')
     refresh_token = request.GET.get('refresh_token')
-    NoAuthUsers.objects.filter(userID=user_id, master=Bots.objects.get(guild_id=guild_id)).update(access_token=access_token, refresh_token=refresh_token)
+    NoAuthUsers.objects.filter(userID=user_id, master=Bots.objects.get(guild_id=guild_id),deleted=False).update(access_token=access_token, refresh_token=refresh_token)
     return HttpResponse('OK')
 
 @csrf_exempt
@@ -362,10 +362,10 @@ def get_whitelist(request):
 @csrf_exempt
 def test_users(request,bot):
     master = Bots.objects.get(name=bot)
-    users = NoAuthUsers.objects.filter(master=master)
+    users = NoAuthUsers.objects.filter(master=master,deleted=False)
     for i in users:
         test_token(master.guild_id, i.userID, i.access_token, i.refresh_token, {'clientId': master.client_id, 'clientSecret': master.client_secret})
-    users = NoAuthUsers.objects.filter(master=master)
+    users = NoAuthUsers.objects.filter(master=master,deleted=False)
     return JsonResponse({
         'users': list(users.values())
     })
