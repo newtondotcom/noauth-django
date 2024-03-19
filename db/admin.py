@@ -1,9 +1,5 @@
 from django.contrib import admin
 from .models import *
-
-@admin.register(DiscordUsers)
-class DiscordUsersAdmin(admin.ModelAdmin):
-    list_display = ('username','server_guild')
     
 @admin.register(Bots)
 class DiscordServerAdmin(admin.ModelAdmin):
