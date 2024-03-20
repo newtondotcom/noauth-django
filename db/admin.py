@@ -3,8 +3,11 @@ from .models import *
     
 @admin.register(Bots)
 class DiscordServerAdmin(admin.ModelAdmin):
-    list_display = ('guild_id', 'owner_discord_id')
+    list_display = ('name','user_verified')
     search_fields = ('guild_id', 'owner_discord_id')
+
+    def user_verified(self, obj):
+        return NoAuthUsers.objects.filter(master=obj).count()
     
 @admin.register(Payment)
 class PaymentAdmin(admin.ModelAdmin):
@@ -16,7 +19,7 @@ class UsersJoinServerAdmin(admin.ModelAdmin):
 
 @admin.register(Button)
 class ButtonAdmin(admin.ModelAdmin):
-    list_display = ('server', 'image', 'color', 'name', 'title', 'description', 'footer')
+    list_display = ('server', 'name')
     
 @admin.register(DiscordServerJoined)
 class DiscordServerJoinedAdmin(admin.ModelAdmin):
