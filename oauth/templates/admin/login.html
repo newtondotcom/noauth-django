@@ -1,0 +1,108 @@
+{% extends "admin/login.html" %}
+
+{% load i18n static %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+#header {
+  background-color: transparent !important;
+}
+.login {
+    background: var(--darkened-bg);
+    height: auto;
+}
+
+.login #header {
+    height: auto;
+    padding: 15px 16px;
+    justify-content: center;
+}
+
+.login #header h1 {
+    font-size: 1.125rem;
+    margin: 0;
+}
+
+.login #header h1 a {
+    color: var(--header-link-color);
+}
+
+.login #content {
+    padding: 20px 20px 0;
+}
+
+.login #container {
+    background: var(--body-bg);
+    border: 1px solid var(--hairline-color);
+    border-radius: 16px;
+    overflow: hidden;
+    width: 28em;
+    min-width: 300px;
+    margin: 100px auto;
+    height: auto;
+}
+
+.login .form-row {
+    padding: 4px 0;
+}
+
+.login .form-row label {
+    display: block;
+    line-height: 2em;
+}
+
+.login .form-row #id_username, .login .form-row #id_password {
+    padding: 8px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.login .submit-row {
+    padding: 1em 0 0 0;
+    margin: 0;
+    text-align: center;
+}
+
+.login .password-reset-link {
+    text-align: center;
+}
+
+.lead {
+    color: var(--text-color);
+    font-size: 1.25rem;
+    font-weight: 400;
+    line-height: 1.5;
+    margin-bottom: 1rem;
+    padding-left: 5px;
+    padding-right: 5px;
+    text-align: center;
+}
+
+.title {
+    color: var(--header-link-color);
+    font-size: 2.5rem;
+    font-weight: 400;
+    line-height: 1.5;
+    margin-bottom: 1rem;
+    padding-left: 5px;
+    padding-right: 5px;
+    text-align: center;
+}
+
+</style>
+{% endblock %}
+
+{% block branding %}
+<h1>
+  <span class="title" style="color: #57C5A5 !important">NOAuth</span>
+  <br />
+  <small>{% block head_title %}{% endblock %}</small>
+</h1>
+{% endblock %}
+
+{% block content_title %}
+<p class="lead" style="font-size: larger">
+The panel to manage your whole NOAuth system.
+</p>
+{% endblock %}
