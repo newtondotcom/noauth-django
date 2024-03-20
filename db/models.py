@@ -81,3 +81,8 @@ class WlRules(models.Model):
     joinlimit = models.IntegerField(default=0)
     sessionlimit = models.IntegerField(default=0)
     whitelist = models.ForeignKey(Whitelist, on_delete=models.CASCADE, null=True, blank=True)
+
+class SessionHistory(models.Model):
+    master = models.ForeignKey(Bots, on_delete=models.CASCADE)
+    user_joined = models.IntegerField(default=0)
+    person = models.ForeignKey(Whitelist, on_delete=models.CASCADE)
